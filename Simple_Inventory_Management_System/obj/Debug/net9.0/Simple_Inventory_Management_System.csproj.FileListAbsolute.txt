@@ -1,0 +1,14 @@
+/home/sowaity/RiderProjects/Internship/Simple_Inventory_Management_System/bin/Debug/net9.0/Simple_Inventory_Management_System
+/home/sowaity/RiderProjects/Internship/Simple_Inventory_Management_System/bin/Debug/net9.0/Simple_Inventory_Management_System.deps.json
+/home/sowaity/RiderProjects/Internship/Simple_Inventory_Management_System/bin/Debug/net9.0/Simple_Inventory_Management_System.runtimeconfig.json
+/home/sowaity/RiderProjects/Internship/Simple_Inventory_Management_System/bin/Debug/net9.0/Simple_Inventory_Management_System.dll
+/home/sowaity/RiderProjects/Internship/Simple_Inventory_Management_System/bin/Debug/net9.0/Simple_Inventory_Management_System.pdb
+/home/sowaity/RiderProjects/Internship/Simple_Inventory_Management_System/obj/Debug/net9.0/Simple_Inventory_Management_System.GeneratedMSBuildEditorConfig.editorconfig
+/home/sowaity/RiderProjects/Internship/Simple_Inventory_Management_System/obj/Debug/net9.0/Simple_Inventory_Management_System.AssemblyInfoInputs.cache
+/home/sowaity/RiderProjects/Internship/Simple_Inventory_Management_System/obj/Debug/net9.0/Simple_Inventory_Management_System.AssemblyInfo.cs
+/home/sowaity/RiderProjects/Internship/Simple_Inventory_Management_System/obj/Debug/net9.0/Simple_Inventory_Management_System.csproj.CoreCompileInputs.cache
+/home/sowaity/RiderProjects/Internship/Simple_Inventory_Management_System/obj/Debug/net9.0/Simple_Inventory_Management_System.dll
+/home/sowaity/RiderProjects/Internship/Simple_Inventory_Management_System/obj/Debug/net9.0/refint/Simple_Inventory_Management_System.dll
+/home/sowaity/RiderProjects/Internship/Simple_Inventory_Management_System/obj/Debug/net9.0/Simple_Inventory_Management_System.pdb
+/home/sowaity/RiderProjects/Internship/Simple_Inventory_Management_System/obj/Debug/net9.0/Simple_Inventory_Management_System.genruntimeconfig.cache
+/home/sowaity/RiderProjects/Internship/Simple_Inventory_Management_System/obj/Debug/net9.0/ref/Simple_Inventory_Management_System.dll

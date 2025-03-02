@@ -2,22 +2,22 @@ namespace Simple_Inventory_Management_System;
 
 class Inventory
 {
-    private List<Product> products = new List<Product>();
+    private List<Product> _products = new List<Product>();
 
     public void AddProduct(string name, double price, int quantity)
     {
-        products.Add(new Product(name, price, quantity));
+        _products.Add(new Product(name, price, quantity));
         Console.WriteLine($"Product '{name}' added successfully.");
     }
 
     public void ViewProducts()
     {
-        if (products.Count == 0)
+        if (_products.Count == 0)
         {
             Console.WriteLine("No products in inventory.");
             return;
         }
-        foreach (var product in products)
+        foreach (var product in _products)
         {
             Console.WriteLine(product);
         }
@@ -25,7 +25,7 @@ class Inventory
 
     public void EditProduct(string name)
     {
-        var product = products.Find(p => p.Name == name);
+        var product = _products.Find(p => p.Name == name);
         if (product == null)
         {
             Console.WriteLine("Product not found.");
@@ -33,11 +33,11 @@ class Inventory
         }
 
         Console.Write("Enter new name (leave blank to keep current): ");
-        string newName = Console.ReadLine();
+        string? newName = Console.ReadLine();
         Console.Write("Enter new price (leave blank to keep current): ");
-        string newPrice = Console.ReadLine();
+        string? newPrice = Console.ReadLine();
         Console.Write("Enter new quantity (leave blank to keep current): ");
-        string newQuantity = Console.ReadLine();
+        string? newQuantity = Console.ReadLine();
 
         product.Name = string.IsNullOrWhiteSpace(newName) ? product.Name : newName;
         product.Price = double.TryParse(newPrice, out double price) ? price : product.Price;
@@ -48,10 +48,10 @@ class Inventory
 
     public void DeleteProduct(string name)
     {
-        var product = products.Find(p => p.Name == name);
+        var product = _products.Find(p => p.Name == name);
         if (product != null)
         {
-            products.Remove(product);
+            _products.Remove(product);
             Console.WriteLine($"Product '{name}' deleted successfully.");
         }
         else
@@ -62,7 +62,7 @@ class Inventory
 
     public void SearchProduct(string name)
     {
-        var product = products.Find(p => p.Name == name);
+        var product = _products.Find(p => p.Name == name);
         if (product != null)
         {
             Console.WriteLine("Product found:");

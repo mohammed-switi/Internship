@@ -1,0 +1,6 @@
+FlightNumber,DepartureCountry,DestinationCountry,DepartureAirport,ArrivalAirport,DepartureDate,EconomyPrice,BusinessPrice,FirstClassPrice
+AA123,USA,UK,JFK,LHR,2025-06-15T08:00:00,300,700,1200
+BA456,UK,France,LHR,CDG,2025-06-16T10:00:00,200,600,1000
+QR789,Qatar,USA,DOH,JFK,2025-06-17T14:30:00,400,900,1500
+EK202,UAE,Germany,DXB,FRA,2025-06-18T09:45:00,350,750,1300
+LH303,Germany,Canada,FRA,YYZ,2025-06-19T11:20:00,280,680,1100

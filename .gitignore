@@ -1,7 +1,8 @@
 # Ignore build output directories
-/bin/
-/obj/
+*/bin/
+*/obj/
 
+.idea/
 # Ignore user-specific files
 *.user
 *.userosscache

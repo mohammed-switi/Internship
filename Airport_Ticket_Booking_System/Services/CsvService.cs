@@ -9,8 +9,6 @@ using System.Linq;
 
 public static class CsvService
 {
-    
-
     public static List<Flight> LoadFlights(string FlightsFilePath)
     {
         var flights = new List<Flight>();

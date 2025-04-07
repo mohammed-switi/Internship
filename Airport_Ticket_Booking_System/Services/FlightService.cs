@@ -1,8 +1,9 @@
+using Airport_Ticket_Booking_System.Interfaces;
 using Airport_Ticket_Booking_System.Models;
 
 namespace Airport_Ticket_Booking_System.Services;
 
-public class FlightService
+public class FlightService : IFlightService
 {
     private List<Flight> _flights = new();
     private const string _flightsFilePath = "/home/sowaity/RiderProjects/Internship/Airport_Ticket_Booking_System/Data/flights.csv";
@@ -21,9 +22,9 @@ public class FlightService
     string departureCountry, 
     string destinationCountry, 
     DateTime? departureDate = null, 
-    string departureAirport = null, 
-    string arrivalAirport = null, 
-    string classType = null, 
+    string? departureAirport = null, 
+    string? arrivalAirport = null, 
+    string? classType = null, 
     decimal? maxPrice = null)
 {
     return _flights.Where(f => 

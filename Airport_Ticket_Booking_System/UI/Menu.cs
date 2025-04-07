@@ -5,8 +5,14 @@ namespace Airport_Ticket_Booking_System.UI;
 
 public class Menu
 {
-   private Manager manager = new Manager();
-    
+
+    private Manager manager;
+
+
+   public Menu(Manager manager)
+   {
+       this.manager = manager;
+   }
     public void ShowMainMenu()
     {
         
@@ -28,7 +34,7 @@ public class Menu
         }
     }
 
-   private void BookFlight()
+    public void BookFlight()
 {
     Console.WriteLine("Available flights:");
     foreach (var flight in manager.FlightService.GetAllFlights())

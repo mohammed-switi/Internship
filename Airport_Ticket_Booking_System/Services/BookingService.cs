@@ -1,8 +1,9 @@
+using Airport_Ticket_Booking_System.Interfaces;
 using Airport_Ticket_Booking_System.Models;
 
 namespace Airport_Ticket_Booking_System.Services;
 
-public class BookingService
+public class BookingService: IBookingService
 {
     private List<Booking> _bookings = new();
 
@@ -86,12 +87,11 @@ public class BookingService
             return;
         }
 
-        booking = booking with
-        {
-            FlightNumber = newFlight.FlightNumber,
-            ClassType = newClassType,
-            Price = newFlight.Prices[newClassType]
-        };
+        booking = booking.modifyBooking(
+            flightNumber: newFlight.FlightNumber,
+            classType: newClassType,
+            flightPrice: newFlight.Prices[newClassType]
+        );
 
         // Update the booking in the list
         var index = _bookings.FindIndex(b => b.BookingId == bookingId);

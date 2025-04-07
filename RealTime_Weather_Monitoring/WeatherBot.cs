@@ -1,8 +1,5 @@
 namespace RealTime_Weather_Monitoring;
-
-using System;
-
-public abstract class WeatherBot
+public abstract class WeatherBot : IWeatherObserver
 {
     public string Name { get; }
     public string Message { get; }
@@ -15,62 +12,9 @@ public abstract class WeatherBot
         IsEnabled = isEnabled;
     }
 
+    public void Update(WeatherData weatherData)
+    {
+            CheckActivation(weatherData);
+    }
     public abstract void CheckActivation(WeatherData data);
-}
-
-public class RainBot : WeatherBot
-{
-    private double HumidityThreshold;
-
-    public RainBot(double threshold, string message, bool isEnabled)
-        : base("RainBot", message, isEnabled)
-    {
-        HumidityThreshold = threshold;
-    }
-
-    public override void CheckActivation(WeatherData data)
-    {
-        if (IsEnabled && data.Humidity > HumidityThreshold)
-        {
-            Console.WriteLine($"{Name} activated!\n{Message}");
-        }
-    }
-}
-
-public class SunBot : WeatherBot
-{
-    private double TemperatureThreshold;
-
-    public SunBot(double threshold, string message, bool isEnabled)
-        : base("SunBot", message, isEnabled)
-    {
-        TemperatureThreshold = threshold;
-    }
-
-    public override void CheckActivation(WeatherData data)
-    {
-        if (IsEnabled && data.Temperature > TemperatureThreshold)
-        {
-            Console.WriteLine($"{Name} activated!\n{Message}");
-        }
-    }
-}
-
-public class SnowBot : WeatherBot
-{
-    private double TemperatureThreshold;
-
-    public SnowBot(double threshold, string message, bool isEnabled)
-        : base("SnowBot", message, isEnabled)
-    {
-        TemperatureThreshold = threshold;
-    }
-
-    public override void CheckActivation(WeatherData data)
-    {
-        if (IsEnabled && data.Temperature < TemperatureThreshold)
-        {
-            Console.WriteLine($"{Name} activated!\n{Message}");
-        }
-    }
 }

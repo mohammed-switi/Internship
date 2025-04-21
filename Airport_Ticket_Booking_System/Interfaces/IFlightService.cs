@@ -5,7 +5,9 @@ namespace Airport_Ticket_Booking_System.Interfaces;
 
 public interface IFlightService
 {
-   List<Flight> GetAllFlights(); 
+   List<Flight> GetAllFlights();
+
+   void AddFlight(Flight flight);
    Flight GetFlightByNumber(string flightNumber);
 
    IEnumerable<Flight> SearchFlights(

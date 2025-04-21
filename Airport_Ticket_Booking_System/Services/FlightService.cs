@@ -10,9 +10,18 @@ public class FlightService : IFlightService
     
     public void LoadFlights()
     {
-        _flights = CsvService.LoadFlights(_flightsFilePath);
+        List<Flight> flights =  CsvService.LoadFlights(_flightsFilePath);
+        foreach (var flight in flights)
+        {
+               _flights.Add(flight);   
+        }
     }
-
+    
+    public void AddFlight(Flight flight)
+    {
+        _flights.Add(flight);
+    }
+    
     public FlightService()
     {
         LoadFlights();

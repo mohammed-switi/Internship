@@ -4,7 +4,12 @@ namespace RealTime_Weather_Monitoring
     public class WeatherSubject
     {
         private readonly List<IWeatherObserver> _observers = new List<IWeatherObserver>();
-
+        
+        
+        public int GetObserversCount()
+        {
+            return _observers.Count;
+        }
         public void Attach(IWeatherObserver observer)
         {
             _observers.Add(observer);

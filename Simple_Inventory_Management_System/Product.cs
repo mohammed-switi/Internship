@@ -2,17 +2,34 @@ namespace Simple_Inventory_Management_System;
 
 using System;
 using System.Collections.Generic;
-class Product
+public class Product
 {
+    
+   
+    public int Id { get; set; }
+ 
     public string Name { get; set; }
-    public double Price { get; set; }
+    public decimal Price { get; set; }
     public int Quantity { get; set; }
 
-    public Product(string name, double price, int quantity)
+    public Product(string name, decimal price, int quantity)
     {
         Name = name;
         Price = price;
         Quantity = quantity;
+    }
+    
+    public Product(int id, string name, decimal price, int quantity)
+    {
+        Id = id;
+        Name = name;
+        Price = price;
+        Quantity = quantity;
+    }
+
+    public Product()
+    {
+        
     }
 
     public override string ToString()

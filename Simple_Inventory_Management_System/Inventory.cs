@@ -4,7 +4,7 @@ class Inventory
 {
     private List<Product> _products = new List<Product>();
 
-    public void AddProduct(string name, double price, int quantity)
+    public void AddProduct(string name, decimal price, int quantity)
     {
         _products.Add(new Product(name, price, quantity));
         Console.WriteLine($"Product '{name}' added successfully.");
@@ -40,7 +40,7 @@ class Inventory
         string? newQuantity = Console.ReadLine();
 
         product.Name = string.IsNullOrWhiteSpace(newName) ? product.Name : newName;
-        product.Price = double.TryParse(newPrice, out double price) ? price : product.Price;
+        product.Price = string.IsNullOrWhiteSpace(newPrice) ? product.Price : Convert.ToDecimal(newPrice);
         product.Quantity = int.TryParse(newQuantity, out int quantity) ? quantity : product.Quantity;
 
         Console.WriteLine($"Product '{name}' updated successfully.");

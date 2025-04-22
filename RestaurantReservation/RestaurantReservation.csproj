@@ -8,4 +8,8 @@
         <RootNamespace>ResturantReservation</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\RestaurantReservation.Db\RestaurantReservation.Db.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -33,6 +33,31 @@ class Inventory
     }
     
     
+    public void EditProduct(string name)
+    {
+        var filter = Builders<Product>.Filter.Eq(p => p.Name, name);
+        var product = _productCollection.Find(filter).FirstOrDefault();
+        
+        if (product != null)
+        {
+            Console.Write("Enter new price: ");
+            double newPrice = Convert.ToDouble(Console.ReadLine());
+            Console.Write("Enter new quantity: ");
+            int newQuantity = Convert.ToInt32(Console.ReadLine());
+            
+            product.Price = newPrice;
+            product.Quantity = newQuantity;
+            
+            _productCollection.ReplaceOne(filter, product);
+            Console.WriteLine("Product updated successfully.");
+        }
+        else
+        {
+            Console.WriteLine("Product not found.");
+        }
+    }
+    
+    
     
     
 }

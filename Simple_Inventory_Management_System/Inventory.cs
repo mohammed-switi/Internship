@@ -35,8 +35,7 @@ class Inventory
     
     public void EditProduct(string name)
     {
-        var filter = Builders<Product>.Filter.Eq(p => p.Name, name);
-        var product = _productCollection.Find(filter).FirstOrDefault();
+        var product = _productCollection.Find(p => p.Name == name).FirstOrDefault();
         
         if (product != null)
         {
@@ -48,7 +47,7 @@ class Inventory
             product.Price = newPrice;
             product.Quantity = newQuantity;
             
-            _productCollection.ReplaceOne(filter, product);
+            _productCollection.ReplaceOne((p=> p.Name==name), product);
             Console.WriteLine("Product updated successfully.");
         }
         else
@@ -59,8 +58,7 @@ class Inventory
     
     public void DeleteProduct(string name)
     {
-        var filter = Builders<Product>.Filter.Eq(p => p.Name, name);
-        var result = _productCollection.DeleteOne(filter);
+        var result = _productCollection.DeleteOne(p => p.Name == name);
         
         if (result.DeletedCount > 0)
         {
@@ -71,6 +69,21 @@ class Inventory
             Console.WriteLine("Product not found.");
         }
     }
-    
-    
+
+    public void SearchProducts(string name)
+    {
+        var product = _productCollection.Find(p => p.Name == name).FirstOrDefault();
+        
+        if (product != null)
+        {
+            Console.WriteLine("Product found:");
+            Console.WriteLine(product);
+        }
+        else
+        {
+            Console.WriteLine("Product not found.");
+        }
+    }
+
+
 }

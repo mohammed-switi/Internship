@@ -52,32 +52,41 @@ namespace RestaurantReservation.Db
                 .HasOne(r => r.Customer)
                 .WithMany(c => c.Reservations)
                 .HasForeignKey(r => r.CustomerId);
+            
             builder.Entity<Reservation>()
                 .HasOne(r => r.Restaurant)
                 .WithMany(r => r.Reservations)
                 .HasForeignKey(r => r.RestaurantId);
+            
             builder.Entity<Reservation>()
                 .HasOne(r => r.Table)
                 .WithMany(t => t.Reservations)
-                .HasForeignKey(r => r.TableId);
+                .HasForeignKey(r => r.TableId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Order>()
                 .HasOne(o => o.Reservation)
                 .WithMany(r => r.Orders)
-                .HasForeignKey(o => o.ReservationId);
+                .HasForeignKey(o => o.ReservationId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
             builder.Entity<Order>()
                 .HasOne(o => o.Employee)
                 .WithMany(e => e.Orders)
-                .HasForeignKey(o => o.EmployeeId);
+                .HasForeignKey(o => o.EmployeeId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<OrderItem>()
                 .HasOne(oi => oi.Order)
                 .WithMany(o => o.OrderItems)
-                .HasForeignKey(oi => oi.OrderId);
+                .HasForeignKey(oi => oi.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
             builder.Entity<OrderItem>()
                 .HasOne(oi => oi.MenuItem)
                 .WithMany(m => m.OrderItems)
-                .HasForeignKey(oi => oi.ItemId);
+                .HasForeignKey(oi => oi.ItemId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Customer>().HasData(
                 new Customer { CustomerId = 1, FirstName = "John", LastName = "Doe", Email = "john@example.com", PhoneNumber = "123-456" },

@@ -11,7 +11,7 @@ class Program {
     static async Task Main(string[] args) {
         var services = new ServiceCollection()
             .AddDbContext<RestaurantReservationDbContext>(opts =>
-                opts.UseSqlServer("Server=localhost,1443;Database=ReservationDb;User Id=sa;Password=Sowaity.1417;"))
+             opts.UseSqlServer("Data Source=127.0.0.1,1433;Initial Catalog=ReservationDb;User ID=sa;Password=Sowaity.1417;TrustServerCertificate=True;"))
             .AddScoped<CustomerRepository>()
             .AddScoped<ReservationRepository>()
             .AddScoped<EmployeeRepository>()

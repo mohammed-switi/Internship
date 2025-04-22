@@ -12,8 +12,8 @@ using RestaurantReservation.Db;
 namespace RestaurantReservation.Db.Migrations
 {
     [DbContext(typeof(RestaurantReservationDbContext))]
-    [Migration("20250422205837_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250422212151_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -373,7 +373,7 @@ namespace RestaurantReservation.Db.Migrations
                     b.HasOne("RestaurantReservation.Db.Models.Reservation", "Reservation")
                         .WithMany("Orders")
                         .HasForeignKey("ReservationId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Employee");
@@ -386,7 +386,7 @@ namespace RestaurantReservation.Db.Migrations
                     b.HasOne("RestaurantReservation.Db.Models.MenuItem", "MenuItem")
                         .WithMany("OrderItems")
                         .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("RestaurantReservation.Db.Models.Order", "Order")
@@ -417,7 +417,7 @@ namespace RestaurantReservation.Db.Migrations
                     b.HasOne("RestaurantReservation.Db.Models.Table", "Table")
                         .WithMany("Reservations")
                         .HasForeignKey("TableId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Customer");

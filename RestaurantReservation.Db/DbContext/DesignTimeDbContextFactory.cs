@@ -10,8 +10,10 @@ namespace RestaurantReservation.Db
         public RestaurantReservationDbContext CreateDbContext(string[] args)
         {
             var builder = new DbContextOptionsBuilder<RestaurantReservationDbContext>();
-            builder.UseSqlServer("Server=localhost,1443;Database=ReservationDb;User Id=sa;Password=Sowaity.1417;");
+            builder.UseSqlServer("Data Source=127.0.0.1,1433;Initial Catalog=ReservationDb;User ID=sa;Password=Sowaity.1417;TrustServerCertificate=True;");
             return new RestaurantReservationDbContext(builder.Options);
+            
+            
         }
     }
 }

@@ -70,7 +70,7 @@ class Inventory
         }
     }
 
-    public void SearchProducts(string name)
+    public void SearchProduct(string name)
     {
         var product = _productCollection.Find(p => p.Name == name).FirstOrDefault();
         

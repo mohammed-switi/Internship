@@ -48,7 +48,7 @@ class Program
                 case "5":
                     Console.Write("Enter product name to search: ");
                     name = Console.ReadLine();
-                    inventory.SearchProducts(name);
+                    inventory.SearchProduct(name);
                     break;
                 case "6":
                     Console.WriteLine("Exiting... Goodbye!");

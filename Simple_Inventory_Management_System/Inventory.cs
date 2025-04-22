@@ -22,6 +22,16 @@ class Inventory
     }
     
     
+    public void ViewProducts()
+    {
+        var products = _productCollection.Find(new BsonDocument()).ToList();
+        Console.WriteLine("Products in Inventory:");
+        foreach (var product in products)
+        {
+            Console.WriteLine(product);
+        }
+    }
+    
     
     
     

@@ -57,7 +57,20 @@ class Inventory
         }
     }
     
-    
+    public void DeleteProduct(string name)
+    {
+        var filter = Builders<Product>.Filter.Eq(p => p.Name, name);
+        var result = _productCollection.DeleteOne(filter);
+        
+        if (result.DeletedCount > 0)
+        {
+            Console.WriteLine("Product deleted successfully.");
+        }
+        else
+        {
+            Console.WriteLine("Product not found.");
+        }
+    }
     
     
 }

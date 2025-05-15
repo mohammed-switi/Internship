@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RestaurantReservation.Db;
 
@@ -11,9 +12,11 @@ using RestaurantReservation.Db;
 namespace RestaurantReservation.Db.Migrations
 {
     [DbContext(typeof(RestaurantReservationDbContext))]
-    partial class RestaurantReservationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250515215833_second")]
+    partial class second
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -285,48 +288,6 @@ namespace RestaurantReservation.Db.Migrations
                     b.HasIndex("ReservationId");
 
                     b.ToTable("Orders");
-
-                    b.HasData(
-                        new
-                        {
-                            OrderId = 1,
-                            EmployeeId = 1,
-                            OrderDate = new DateTime(2024, 4, 12, 18, 15, 0, 0, DateTimeKind.Unspecified),
-                            ReservationId = 1,
-                            TotalAmount = 50.00m
-                        },
-                        new
-                        {
-                            OrderId = 2,
-                            EmployeeId = 2,
-                            OrderDate = new DateTime(2024, 4, 13, 19, 15, 0, 0, DateTimeKind.Unspecified),
-                            ReservationId = 2,
-                            TotalAmount = 30.00m
-                        },
-                        new
-                        {
-                            OrderId = 3,
-                            EmployeeId = 3,
-                            OrderDate = new DateTime(2024, 4, 14, 20, 15, 0, 0, DateTimeKind.Unspecified),
-                            ReservationId = 3,
-                            TotalAmount = 100.00m
-                        },
-                        new
-                        {
-                            OrderId = 4,
-                            EmployeeId = 4,
-                            OrderDate = new DateTime(2024, 4, 15, 18, 45, 0, 0, DateTimeKind.Unspecified),
-                            ReservationId = 4,
-                            TotalAmount = 80.00m
-                        },
-                        new
-                        {
-                            OrderId = 5,
-                            EmployeeId = 5,
-                            OrderDate = new DateTime(2024, 4, 16, 19, 45, 0, 0, DateTimeKind.Unspecified),
-                            ReservationId = 5,
-                            TotalAmount = 120.00m
-                        });
                 });
 
             modelBuilder.Entity("RestaurantReservation.Db.Models.OrderItem", b =>
@@ -353,43 +314,6 @@ namespace RestaurantReservation.Db.Migrations
                     b.HasIndex("OrderId");
 
                     b.ToTable("OrderItems");
-
-                    b.HasData(
-                        new
-                        {
-                            OrderItemId = 1,
-                            ItemId = 1,
-                            OrderId = 1,
-                            Quantity = 2
-                        },
-                        new
-                        {
-                            OrderItemId = 2,
-                            ItemId = 2,
-                            OrderId = 1,
-                            Quantity = 1
-                        },
-                        new
-                        {
-                            OrderItemId = 3,
-                            ItemId = 3,
-                            OrderId = 2,
-                            Quantity = 1
-                        },
-                        new
-                        {
-                            OrderItemId = 4,
-                            ItemId = 4,
-                            OrderId = 3,
-                            Quantity = 3
-                        },
-                        new
-                        {
-                            OrderItemId = 5,
-                            ItemId = 5,
-                            OrderId = 4,
-                            Quantity = 2
-                        });
                 });
 
             modelBuilder.Entity("RestaurantReservation.Db.Models.Reservation", b =>
@@ -424,53 +348,6 @@ namespace RestaurantReservation.Db.Migrations
                     b.HasIndex("TableId");
 
                     b.ToTable("Reservations");
-
-                    b.HasData(
-                        new
-                        {
-                            ReservationId = 1,
-                            CustomerId = 1,
-                            PartySize = 4,
-                            ReservationDate = new DateTime(2024, 4, 12, 18, 0, 0, 0, DateTimeKind.Unspecified),
-                            RestaurantId = 1,
-                            TableId = 1
-                        },
-                        new
-                        {
-                            ReservationId = 2,
-                            CustomerId = 2,
-                            PartySize = 2,
-                            ReservationDate = new DateTime(2024, 4, 13, 19, 0, 0, 0, DateTimeKind.Unspecified),
-                            RestaurantId = 2,
-                            TableId = 3
-                        },
-                        new
-                        {
-                            ReservationId = 3,
-                            CustomerId = 3,
-                            PartySize = 6,
-                            ReservationDate = new DateTime(2024, 4, 14, 20, 0, 0, 0, DateTimeKind.Unspecified),
-                            RestaurantId = 3,
-                            TableId = 4
-                        },
-                        new
-                        {
-                            ReservationId = 4,
-                            CustomerId = 4,
-                            PartySize = 8,
-                            ReservationDate = new DateTime(2024, 4, 15, 18, 30, 0, 0, DateTimeKind.Unspecified),
-                            RestaurantId = 4,
-                            TableId = 5
-                        },
-                        new
-                        {
-                            ReservationId = 5,
-                            CustomerId = 5,
-                            PartySize = 10,
-                            ReservationDate = new DateTime(2024, 4, 16, 19, 30, 0, 0, DateTimeKind.Unspecified),
-                            RestaurantId = 5,
-                            TableId = 2
-                        });
                 });
 
             modelBuilder.Entity("RestaurantReservation.Db.Models.Restaurant", b =>

@@ -56,7 +56,8 @@ public static class CsvService
     // ✅ Save Bookings to CSV
     public static void SaveBooking(Booking booking, string BookingsFilePath)
     {
-        var line = $"{booking.BookingId},{booking.PassengerName},{booking.FlightNumber},{booking.ClassType},{booking.Price}";
+        var line =
+            $"{booking.BookingId},{booking.PassengerName},{booking.FlightNumber},{booking.ClassType},{booking.Price}";
         File.AppendAllText(BookingsFilePath, line + Environment.NewLine);
     }
 
@@ -80,13 +81,13 @@ public static class CsvService
 
             try
             {
-                var booking = new Booking(
-                    parts[0],  // BookingId
-                    parts[1],  // PassengerName
-                    parts[2],  // FlightNumber
-                    parts[3],  // ClassType
-                    decimal.Parse(parts[4])  // Price
-                );
+                var booking = new Booking
+                {
+                    PassengerName = parts[1],
+                    FlightNumber = parts[2],
+                    ClassType = parts[3],
+                    Price = decimal.Parse(parts[4])
+                };
 
                 bookings.Add(booking);
             }
@@ -99,7 +100,7 @@ public static class CsvService
         return bookings;
     }
 
-    
+
     public static void ValidateCsv(string filePath)
     {
         if (!File.Exists(filePath))
@@ -118,41 +119,38 @@ public static class CsvService
         foreach (var (line, index) in lines.Skip(1).Select((line, index) => (line, index + 2)))
         {
             var parts = line.Split(',');
-            if (parts.Length < 5) 
+            if (parts.Length < 5)
             {
                 Console.WriteLine($"❌ Line {index}: Missing fields.");
                 continue;
             }
 
-            if (!DateTime.TryParse(parts[5], out _))
-            {
-                Console.WriteLine($"❌ Line {index}: Invalid date format.");
-            }
+            if (!DateTime.TryParse(parts[5], out _)) Console.WriteLine($"❌ Line {index}: Invalid date format.");
 
-            if (!decimal.TryParse(parts[6], out _) || !decimal.TryParse(parts[7], out _) || !decimal.TryParse(parts[8], out _))
-            {
-                Console.WriteLine($"❌ Line {index}: Invalid price format.");
-            }
+            if (!decimal.TryParse(parts[6], out _) || !decimal.TryParse(parts[7], out _) ||
+                !decimal.TryParse(parts[8], out _)) Console.WriteLine($"❌ Line {index}: Invalid price format.");
         }
     }
-    
-    
+
+
     public static void UpdateBookingInCsv(Booking updatedBooking, string filePath)
     {
         var lines = File.ReadAllLines(filePath).ToList();
-        for (int i = 0; i < lines.Count; i++)
+        for (var i = 0; i < lines.Count; i++)
         {
             var fields = lines[i].Split(',');
             if (fields[0] == updatedBooking.BookingId)
             {
-                lines[i] = $"{updatedBooking.BookingId},{updatedBooking.PassengerName},{updatedBooking.FlightNumber},{updatedBooking.ClassType},{updatedBooking.Price}";
+                lines[i] =
+                    $"{updatedBooking.BookingId},{updatedBooking.PassengerName},{updatedBooking.FlightNumber},{updatedBooking.ClassType},{updatedBooking.Price}";
                 break;
             }
         }
+
         File.WriteAllLines(filePath, lines);
     }
-    
-    
+
+
     public static void DeleteBookingFromCsv(string bookingId, string filePath)
     {
         var lines = File.ReadAllLines(filePath).ToList();

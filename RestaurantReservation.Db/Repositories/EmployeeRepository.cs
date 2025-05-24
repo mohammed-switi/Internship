@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RestaurantReservation.Db.Models;
+using RestaurantReservation.Db.Views;
 
 namespace RestaurantReservation.Db.Repositories;
 
@@ -12,7 +13,7 @@ public class EmployeeRepository(RestaurantReservationDbContext ctx) : BaseReposi
             .ToListAsync();
     }
 
-    public async Task<List<EmployeeRestaurantView>> ListEmployeeWithRestaurantAsync()
+    public async Task<List<EmployeeView>> ListEmployeeWithRestaurantAsync()
     {
         return await ctx.EmployeeRestaurant.ToListAsync();
     }

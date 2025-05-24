@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RestaurantReservation.Db.Models;
+using RestaurantReservation.Db.Views;
 
 namespace RestaurantReservation.Db.Repositories;
 
@@ -14,7 +15,7 @@ public class ReservationRepository(RestaurantReservationDbContext ctx) : BaseRep
             .ToListAsync();
     }
 
-    public async Task<List<ReservationCustomerRestaurantView>> ListReservationCustomerRestaurantAsync()
+    public async Task<List<ReservationView>> ListReservationCustomerRestaurantAsync()
     {
         return await ctx.ReservationCustomerRestaurant.ToListAsync();
     }

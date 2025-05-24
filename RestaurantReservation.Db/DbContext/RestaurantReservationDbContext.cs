@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RestaurantReservation.Db.Models;
+using RestaurantReservation.Db.Views;
 
 
 namespace RestaurantReservation.Db
@@ -19,8 +20,8 @@ namespace RestaurantReservation.Db
         public DbSet<MenuItem> MenuItems { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
 
-        public DbSet<ReservationCustomerRestaurantView> ReservationCustomerRestaurant { get; set; }
-        public DbSet<EmployeeRestaurantView> EmployeeRestaurant { get; set; }
+        public DbSet<ReservationView> ReservationCustomerRestaurant { get; set; }
+        public DbSet<EmployeeView> EmployeeRestaurant { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder) {
             
@@ -159,28 +160,15 @@ namespace RestaurantReservation.Db
                 new OrderItem { OrderItemId = 4, OrderId = 3, ItemId = 4, Quantity = 3 },
                 new OrderItem { OrderItemId = 5, OrderId = 4, ItemId = 5, Quantity = 2 }
             );
-            builder.Entity<ReservationCustomerRestaurantView>()
+            builder.Entity<ReservationView>()
                 .HasNoKey()
-                .ToView("ReservationCustomerRestaurantView");
-            builder.Entity<EmployeeRestaurantView>()
+                .ToView("ReservationView");
+            builder.Entity<EmployeeView>()
                 .HasNoKey()
-                .ToView("EmployeeRestaurantView");
+                .ToView("EmployeeView");
         }
     }
 
     
-    public class ReservationCustomerRestaurantView {
-        public int ReservationId { get; set; }
-        public DateTime ReservationDate { get; set; }
-        public int PartySize { get; set; }
-        public string CustomerFullName { get; set; }
-        public string RestaurantName { get; set; }
-    }
-
-    public class EmployeeRestaurantView {
-        public int EmployeeId { get; set; }
-        public string EmployeeName { get; set; }
-        public string Position { get; set; }
-        public string RestaurantName { get; set; }
-    }
+  
 }

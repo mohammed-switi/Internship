@@ -3,7 +3,7 @@ using RestaurantReservation.Db.Models;
 
 namespace RestaurantReservation.Db.Repositories;
 
-public class CustomerRepository(RestaurantReservationDbContext ctx) : BaseRepository<Customer>(ctx)
+public class CustomerRepository(RestaurantReservationDbContext ctx) : BaseRepository<Customer>(ctx), ICustomerRepository
 {
     public async Task<Customer> GetByIdWithReservationsAsync(int customerId)
     {

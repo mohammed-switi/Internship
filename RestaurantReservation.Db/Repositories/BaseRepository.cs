@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace RestaurantReservation.Db.Repositories;
 
-public class BaseRepository<TEntity>(RestaurantReservationDbContext ctx)
+public class BaseRepository<TEntity>(RestaurantReservationDbContext ctx) : IBaseRepository<TEntity>
     where TEntity : class
 {
     public async Task<List<TEntity>> ListAsync()

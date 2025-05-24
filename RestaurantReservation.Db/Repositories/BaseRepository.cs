@@ -1,31 +1,30 @@
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace RestaurantReservation.Db.Repositories
+namespace RestaurantReservation.Db.Repositories;
+
+public class BaseRepository<TEntity>(RestaurantReservationDbContext ctx)
+    where TEntity : class
 {
-    public class BaseRepository<TEntity>(RestaurantReservationDbContext ctx)
-        where TEntity : class
+    public async Task<List<TEntity>> ListAsync()
     {
-        public async Task<List<TEntity>> ListAsync()
-            => await ctx.Set<TEntity>().ToListAsync();
+        return await ctx.Set<TEntity>().ToListAsync();
+    }
 
-        public async Task AddAsync(TEntity entity)
-        {
-            ctx.Set<TEntity>().Add(entity);
-            await ctx.SaveChangesAsync();
-        }
+    public async Task AddAsync(TEntity entity)
+    {
+        ctx.Set<TEntity>().Add(entity);
+        await ctx.SaveChangesAsync();
+    }
 
-        public async Task UpdateAsync(TEntity entity)
-        {
-            ctx.Set<TEntity>().Update(entity);
-            await ctx.SaveChangesAsync();
-        }
+    public async Task UpdateAsync(TEntity entity)
+    {
+        ctx.Set<TEntity>().Update(entity);
+        await ctx.SaveChangesAsync();
+    }
 
-        public async Task DeleteAsync(TEntity entity)
-        {
-            ctx.Set<TEntity>().Remove(entity);
-            await ctx.SaveChangesAsync();
-        }
+    public async Task DeleteAsync(TEntity entity)
+    {
+        ctx.Set<TEntity>().Remove(entity);
+        await ctx.SaveChangesAsync();
     }
 }

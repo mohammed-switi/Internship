@@ -1,0 +1,6 @@
+CREATE TABLE AuditLog (
+    AuditID INT PRIMARY KEY IDENTITY(1,1),
+    BookID INT,
+    StatusChange VARCHAR(50),
+    ChangeDate DATETIME DEFAULT GETDATE()
+);

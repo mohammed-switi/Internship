@@ -1,24 +1,3 @@
 BookingId,PassengerName,FlightNumber,ClassType,Price
-B001,John Doe,AA123,Economy,300
-B002,Jane Smith,BA456,Business,600
-B003,Ali Ahmed,QR789,First Class,1500
-B004,Emma Brown,EK202,Economy,350
-B005,Carlos Garcia,LH303,Business,680
-B0007,Mohammed,AA123,First Class,1200
-,FL001,FL001,Economy,500
-,FL001,FL001,Economy,500
-,FL001,FL001,Economy,500
-,FL001,FL001,Economy,500
-,FL002,FL002,Business,800
-,FL001,FL001,Economy,500
-,FL001,FL001,Economy,500
-,FL001,FL001,Economy,500
-,FL001,FL001,Economy,500
-,FL001,FL001,Economy,500
-,FL001,FL001,Economy,500
-,FL001,FL001,Economy,500
-,FL001,FL001,Economy,500
-,FL001,FL001,Economy,500
-,FL001,FL001,Economy,500
-,FL001,FL001,Economy,500
-,FL001,FL001,Economy,500
+B1001,FL001,FL001,Economy,500
+B1002,Mohamemd,AA123,Economy,300

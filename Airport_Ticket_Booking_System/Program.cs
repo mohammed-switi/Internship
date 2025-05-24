@@ -1,3 +1,4 @@
+using Airport_Ticket_Booking_System.Interfaces;
 using Airport_Ticket_Booking_System.Managers;
 using Airport_Ticket_Booking_System.Services;
 using Airport_Ticket_Booking_System.UI;
@@ -8,9 +9,14 @@ public class Program
 {
     private static void Main()
     {
-        var flightService = new FlightService();
-        var bookingService = new BookingService();
+        IBookingCsvService bookingCsvService = new BookingCsvService();
+        IFlightCsvService flightCsvService = new FlightCsvService();
+
+        var flightService = new FlightService(flightCsvService);
+        var bookingService = new BookingService(bookingCsvService);
+
         var manager = new Manager(flightService, bookingService);
+
         var menu = new Menu(manager);
         menu.ShowMainMenu();
     }

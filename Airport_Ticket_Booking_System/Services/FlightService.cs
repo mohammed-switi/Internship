@@ -5,28 +5,18 @@ namespace Airport_Ticket_Booking_System.Services;
 
 public class FlightService : IFlightService
 {
-    private List<Flight> _flights = new();
+    private readonly List<Flight> _flights;
+    private readonly IFlightCsvService _csvService;
 
-    private const string _flightsFilePath =
-        "/home/sowaity/RiderProjects/Internship/Airport_Ticket_Booking_System/Data/flights.csv";
-
-    public void LoadFlights()
+    public FlightService(IFlightCsvService csvService)
     {
-        List<Flight> flights =  CsvService.LoadFlights(_flightsFilePath);
-        foreach (var flight in flights)
-        {
-               _flights.Add(flight);   
-        }
+        _csvService = csvService;
+        _flights = _csvService.Load();
     }
-    
+
     public void AddFlight(Flight flight)
     {
         _flights.Add(flight);
-    }
-    
-    public FlightService()
-    {
-        LoadFlights();
     }
 
     public IEnumerable<Flight> SearchFlights(
@@ -45,13 +35,17 @@ public class FlightService : IFlightService
             (string.IsNullOrEmpty(departureAirport) || f.DepartureAirport == departureAirport) &&
             (string.IsNullOrEmpty(arrivalAirport) || f.ArrivalAirport == arrivalAirport) &&
             (string.IsNullOrEmpty(classType) || f.Prices.ContainsKey(classType)) &&
+            classType != null &&
             (!maxPrice.HasValue || (f.Prices.ContainsKey(classType) && f.Prices[classType] <= maxPrice.Value))
         );
     }
 
     public Flight GetFlightByNumber(string flightNumber)
     {
-        return _flights.FirstOrDefault(f => f.FlightNumber == flightNumber);
+        var flight = _flights.FirstOrDefault(f => f.FlightNumber == flightNumber) ??
+                     throw new NullReferenceException($"Flight with number {flightNumber} not found.");
+
+        return flight;
     }
 
     public List<Flight> GetAllFlights()

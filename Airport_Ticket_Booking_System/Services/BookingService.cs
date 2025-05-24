@@ -1,30 +1,30 @@
 using Airport_Ticket_Booking_System.Interfaces;
 using Airport_Ticket_Booking_System.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Airport_Ticket_Booking_System.Services;
 
 public class BookingService : IBookingService
 {
-    private List<Booking> _bookings = new();
+    private readonly List<Booking> _bookings;
+    private readonly IBookingCsvService _csvService;
 
-    private const string _bookingFilePath =
-        "/home/sowaity/RiderProjects/Internship/Airport_Ticket_Booking_System/Data/bookings.csv";
-
-
-    public BookingService()
+    public BookingService(IBookingCsvService csvService)
     {
-        LoadBookings();
+        _csvService = csvService;
+        _bookings = _csvService.Load();
     }
 
     public void BookFlight(string passengerName, Flight flight, string classType)
     {
-        if (!flight.Prices.ContainsKey(classType))
-        {
-            Console.WriteLine("Invalid class type.");
-            return;
-        }
+     
 
-        var bookingId = $"B{_bookings.Count + 1:D4}";
+        if (_bookings.Any(b => b.PassengerName == passengerName && b.FlightNumber == flight.FlightNumber && b.ClassType == classType))
+        {
+            throw new InvalidOperationException("Duplicate booking detected.");
+        }
 
         var booking = new Booking
         {
@@ -35,7 +35,7 @@ public class BookingService : IBookingService
         };
 
         _bookings.Add(booking);
-        CsvService.SaveBooking(booking, _bookingFilePath);
+        _csvService.SaveBooking(booking);
         Console.WriteLine($"Booking successful! ID: {booking.BookingId}");
     }
 
@@ -45,7 +45,7 @@ public class BookingService : IBookingService
         if (booking != null)
         {
             _bookings.Remove(booking);
-            CsvService.DeleteBookingFromCsv(booking.BookingId, _bookingFilePath);
+            _csvService.DeleteBookingFromCsv(booking.BookingId);
             Console.WriteLine("Booking canceled successfully.");
         }
         else
@@ -65,16 +65,7 @@ public class BookingService : IBookingService
             Console.WriteLine("No bookings found.");
     }
 
-    public List<Booking> GetAllBookings()
-    {
-        return _bookings;
-    }
-
-    public void LoadBookings()
-    {
-        _bookings = CsvService.LoadBookings(_bookingFilePath);
-    }
-
+    public List<Booking> GetAllBookings() => _bookings;
 
     public void ModifyBooking(string bookingId, Flight newFlight, string newClassType)
     {
@@ -87,33 +78,16 @@ public class BookingService : IBookingService
                 return;
             }
 
-            booking = modifyBooking(
-                booking,
-                newFlight.FlightNumber,
-                newClassType,
-                newFlight.Prices[newClassType]
-            );
+            booking.FlightNumber = newFlight.FlightNumber;
+            booking.ClassType = newClassType;
+            booking.Price = newFlight.Prices[newClassType];
 
-            // Update the booking in the list
-            var index = _bookings.FindIndex(b => b.BookingId == bookingId);
-            _bookings[index] = booking;
-
-            // Save the updated booking to the CSV file
-            CsvService.UpdateBookingInCsv(booking, _bookingFilePath);
-
+            _csvService.UpdateBookingInCsv(booking);
             Console.WriteLine("Booking modified successfully.");
         }
         else
         {
             Console.WriteLine("Booking not found.");
         }
-    }
-
-    private Booking modifyBooking(Booking old, string flightNumber, string classType, decimal flightPrice)
-    {
-        old.FlightNumber = flightNumber;
-        old.ClassType = classType;
-        old.Price = flightPrice;
-        return old;
     }
 }

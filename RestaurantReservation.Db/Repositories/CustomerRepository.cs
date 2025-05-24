@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
 namespace RestaurantReservation.Db.Repositories {
-    public class CustomerRepository : BaseRepository<Customer> {
-        public CustomerRepository(RestaurantReservationDbContext ctx) : base(ctx) { }
+    public class CustomerRepository(RestaurantReservationDbContext ctx) : BaseRepository<Customer>(ctx) {
 
+        
         public async Task<Customer> GetByIdWithReservationsAsync(int customerId) {
-            return await _ctx.Customers
+            return await ctx.Customers
                 .Include(c => c.Reservations)
-                .FirstOrDefaultAsync(c => c.CustomerId == customerId);
+                .FirstOrDefaultAsync(c => c.CustomerId == customerId) ?? throw new InvalidOperationException("Customer not found.");
         }
     }
 }

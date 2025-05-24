@@ -6,11 +6,10 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace RestaurantReservation.Db.Repositories {
-    public class ReservationRepository : BaseRepository<Reservation> {
-        public ReservationRepository(RestaurantReservationDbContext ctx) : base(ctx) { }
+    public class ReservationRepository(RestaurantReservationDbContext ctx) : BaseRepository<Reservation>(ctx) {
 
         public async Task<List<Reservation>> GetByCustomerAsync(int customerId) {
-            return await _ctx.Reservations
+            return await ctx.Reservations
                 .Include(r => r.Restaurant)
                 .Include(r => r.Customer)
                 .Where(r => r.CustomerId == customerId)
@@ -18,7 +17,7 @@ namespace RestaurantReservation.Db.Repositories {
         }
 
         public async Task<List<ReservationCustomerRestaurantView>> ListReservationCustomerRestaurantAsync() {
-            return await _ctx.ReservationCustomerRestaurant.ToListAsync();
+            return await ctx.ReservationCustomerRestaurant.ToListAsync();
         }
     }
 }

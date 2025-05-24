@@ -6,12 +6,12 @@ namespace Airport_Ticket_Booking_System;
 
 public class Program
 {
-    static void Main()
+    private static void Main()
     {
-        FlightService flightService= new FlightService();
-        BookingService bookingService = new BookingService();
-        Manager manager = new Manager(flightService, bookingService);
-        Menu menu = new Menu(manager);
+        var flightService = new FlightService();
+        var bookingService = new BookingService();
+        var manager = new Manager(flightService, bookingService);
+        var menu = new Menu(manager);
         menu.ShowMainMenu();
     }
 }

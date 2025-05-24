@@ -1,6 +1,5 @@
 namespace Airport_Ticket_Booking_System.Models;
 
-
 public record Flight(
     string FlightNumber,
     string DepartureCountry,

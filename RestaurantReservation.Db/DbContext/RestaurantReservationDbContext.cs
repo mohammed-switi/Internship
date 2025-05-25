@@ -276,7 +276,7 @@ public class RestaurantReservationDbContext : DbContext
     public async Task<decimal> GetRestaurantRevenueAsync(int restaurantId)
     {
         var result = await Set<RevenueResult>()
-            .FromSqlInterpolated($"SELECT dbo.GetRestaurantRevenue({restaurantId}) AS Value")
+            .FromSqlInterpolated($"SELECT dbo.fn_GetTotalRevenueByRestaurant({restaurantId}) AS Value")
             .AsNoTracking()
             .FirstAsync();
         return result.Value;

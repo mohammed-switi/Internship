@@ -12,4 +12,12 @@ public class CustomerRepository(RestaurantReservationDbContext ctx) : BaseReposi
                    .FirstOrDefaultAsync(c => c.CustomerId == customerId) ??
                throw new InvalidOperationException("Customer not found.");
     }
+    
+    
+     public async Task<List<Customer>> GetCustomersWithLargePartyAsync(int partySize)
+        {
+            return await ctx.Customers
+                .FromSqlInterpolated($"EXEC dbo.GetCustomersWithLargeParty {partySize}")
+                .ToListAsync();
+        }
 }

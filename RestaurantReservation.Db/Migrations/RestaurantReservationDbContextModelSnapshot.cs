@@ -52,7 +52,7 @@ namespace RestaurantReservation.Db.Migrations
 
                     b.HasKey("CustomerId");
 
-                    b.ToTable("Customers", (string)null);
+                    b.ToTable("Customers");
 
                     b.HasData(
                         new
@@ -124,7 +124,7 @@ namespace RestaurantReservation.Db.Migrations
 
                     b.HasIndex("RestaurantId");
 
-                    b.ToTable("Employees", (string)null);
+                    b.ToTable("Employees");
 
                     b.HasData(
                         new
@@ -195,7 +195,7 @@ namespace RestaurantReservation.Db.Migrations
 
                     b.HasIndex("RestaurantId");
 
-                    b.ToTable("MenuItems", (string)null);
+                    b.ToTable("MenuItems");
 
                     b.HasData(
                         new
@@ -266,7 +266,7 @@ namespace RestaurantReservation.Db.Migrations
 
                     b.HasIndex("ReservationId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
 
                     b.HasData(
                         new
@@ -334,7 +334,7 @@ namespace RestaurantReservation.Db.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItems", (string)null);
+                    b.ToTable("OrderItems");
 
                     b.HasData(
                         new
@@ -405,7 +405,7 @@ namespace RestaurantReservation.Db.Migrations
 
                     b.HasIndex("TableId");
 
-                    b.ToTable("Reservations", (string)null);
+                    b.ToTable("Reservations");
 
                     b.HasData(
                         new
@@ -481,7 +481,7 @@ namespace RestaurantReservation.Db.Migrations
 
                     b.HasKey("RestaurantId");
 
-                    b.ToTable("Restaurants", (string)null);
+                    b.ToTable("Restaurants");
 
                     b.HasData(
                         new
@@ -544,7 +544,7 @@ namespace RestaurantReservation.Db.Migrations
 
                     b.HasIndex("RestaurantId");
 
-                    b.ToTable("Tables", (string)null);
+                    b.ToTable("Tables");
 
                     b.HasData(
                         new

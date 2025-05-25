@@ -14,10 +14,10 @@ public class CustomerRepository(RestaurantReservationDbContext ctx) : BaseReposi
     }
     
     
-     public async Task<List<Customer>> GetCustomersWithLargePartyAsync(int partySize)
-        {
-            return await ctx.Customers
-                .FromSqlInterpolated($"EXEC dbo.GetCustomersWithLargeParty {partySize}")
-                .ToListAsync();
-        }
+    public async Task<List<Customer>> GetByMinPartySizeAsync(int minPartySize)
+    {
+        return await ctx.Customers
+            .FromSqlInterpolated($"EXEC dbo.sp_GetCustomersByMinPartySize @MinPartySize={minPartySize}")
+            .ToListAsync();
+    }
 }

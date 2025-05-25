@@ -6,5 +6,5 @@ public interface ICustomerRepository : IBaseRepository<Customer>
 {
     Task<Customer> GetByIdWithReservationsAsync(int customerId);
 
-    Task<List<Customer>> GetCustomersWithLargePartyAsync(int partySize);
+    Task<List<Customer>> GetByMinPartySizeAsync(int partySize);
 }

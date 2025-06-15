@@ -1,4 +1,4 @@
-namespace AnamolyDetectionService;
+namespace AnomalyDetectionService;
 
 public interface IMessageConsumer<T>
 {

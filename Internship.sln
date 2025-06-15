@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerMonitoringNotificationSystem", "ServerMonitoringNotificationSystem\ServerMonitoringNotificationSystem.csproj", "{4B1BB4F5-0E9A-4187-97E0-2E3352D7A67E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnamolyDetectionService", "AnamolyDetectionService\AnamolyDetectionService.csproj", "{1FDD75C2-6A3A-4E3E-B7B5-622B28EEA5FD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnomalyDetectionService", "AnomalyDetectionService\AnomalyDetectionService.csproj", "{1FDD75C2-6A3A-4E3E-B7B5-622B28EEA5FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

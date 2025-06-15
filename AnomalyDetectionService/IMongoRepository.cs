@@ -1,8 +1,4 @@
-namespace AnamolyDetectionService;
-
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+namespace AnomalyDetectionService;
 
 public interface IMongoRepository
 {

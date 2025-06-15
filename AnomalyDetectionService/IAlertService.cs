@@ -1,5 +1,5 @@
-namespace AnamolyDetectionService;
-using System.Threading.Tasks;
+
+namespace AnomalyDetectionService;
 
 public interface IAlertService
 {

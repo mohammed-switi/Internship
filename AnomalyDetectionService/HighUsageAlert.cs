@@ -1,7 +1,7 @@
-namespace AnamolyDetectionService;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using System;
+
+namespace AnomalyDetectionService;
 
 public class HighUsageAlert
 {

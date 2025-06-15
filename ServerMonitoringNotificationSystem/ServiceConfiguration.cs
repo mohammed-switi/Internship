@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace ServerMonitoringNotificationSystem
 {
@@ -35,9 +36,25 @@ namespace ServerMonitoringNotificationSystem
                         }
                         );
 
-                    // Register the hosted service
-                    services.AddHostedService<ServerStatisticsCollectionService>();
+                 // Register ServerStatisticsCollectionService as a singleton
+                    services.AddSingleton<ServerStatisticsCollectionService>(sp =>
+                    {
+                        return new ServerStatisticsCollectionService(
+                            sp.GetRequiredService<ISystemStatisticsCollector>(),
+                            sp.GetRequiredService<IMessageQueuePublisher>(),
+                            sp.GetRequiredService<MonitoringConfiguration>(),
+                            sp.GetRequiredService<ILogger<ServerStatisticsCollectionService>>()
+                        );
+                    });
+
+                    // Register the hosted service by using the registered instance above
+                    services.AddHostedService<ServerStatisticsCollectionService>(sp =>
+                        sp.GetRequiredService<ServerStatisticsCollectionService>()
+                    );
                 });
+
+                    // Register the hosted service
+             
         }
     }
 }

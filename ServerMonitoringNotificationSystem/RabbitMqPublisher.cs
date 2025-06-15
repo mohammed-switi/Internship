@@ -20,13 +20,15 @@ public class RabbitMqPublisher(string connectionString, ILogger<RabbitMqPublishe
 
     public async Task PublishAsync(string topic, object message)
     {
-        await _channel.ExchangeDeclareAsync("server_monitoring", ExchangeType.Topic);
+        await _channel.ExchangeDeclareAsync("ServerExchange",
+            ExchangeType.Topic,
+            durable:true);
 
         var json = JsonSerializer.Serialize(message);
         var body = Encoding.UTF8.GetBytes(json);
 
         await _channel.BasicPublishAsync(
-            "server_monitoring",
+            "ServerExchange",
             topic,
             false,
             body

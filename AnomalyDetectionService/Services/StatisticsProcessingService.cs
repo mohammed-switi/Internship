@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace AnomalyDetectionService;
 using System;
 using System.Linq;
@@ -28,26 +30,29 @@ public class StatisticsProcessingService : BackgroundService
         _logger = logger;
     }
 
-    public override Task StartAsync(CancellationToken cancellationToken)
+public override Task StartAsync(CancellationToken cancellationToken)
+{
+    _logger.LogInformation("StatisticsProcessingService is starting.");
+    // Use async event handler
+    _consumer.onMessageReceived += async (sender, stats) =>
     {
-        _logger.LogInformation("StatisticsProcessingService is starting.");
-
-        _consumer.onMessageReceived += async (sender, stats) =>
+        try
         {
-            try
-            {
-                await HandleStatisticsAsync(stats);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error handling statistics for server {stats.ServerIdentifier}");
-            }
-        };
-
-        _consumer.startConsuming();
-
-        return base.StartAsync(cancellationToken);
-    }
+            _logger.LogInformation("Processing statistics message...");
+            _logger.LogInformation("Received stats: {Stats}", JsonSerializer.Serialize(stats));
+            await HandleStatisticsAsync(stats);
+            _logger.LogInformation("Successfully processed statistics message");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing statistics message");
+            throw; 
+        }
+    };
+    
+    // Start consuming
+    return _consumer.StartConsumingAsync();
+}
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -57,7 +62,7 @@ public class StatisticsProcessingService : BackgroundService
 
     public override Task StopAsync(CancellationToken cancellationToken)
     {
-        _consumer.stopConsuming();
+        _consumer.StopConsumingAsync();
         _logger.LogInformation("StatisticsProcessingService is stopping.");
         return base.StopAsync(cancellationToken);
     }
@@ -67,7 +72,7 @@ public class StatisticsProcessingService : BackgroundService
         _logger.LogInformation($"Received stats from {stats.ServerIdentifier} at {stats.Timestamp}");
 
         // Step 1: Save to MongoDB
-        await _repository.InsertAsync(stats);
+        await _repository.InsertAsync<ServerStatistics>(stats);
 
         // Step 2: Retrieve recent statistics for this server
         var history = await _repository.GetRecentAsync<ServerStatistics>(stats.ServerIdentifier, 10);

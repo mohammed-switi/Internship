@@ -14,10 +14,11 @@ public class ServerStatistics
     
     
     [BsonElement("memoryUsage")]
-    public long MemoryUsage { get; set; } 
+    public double MemoryUsage { get; set; } 
+    
 
     [BsonElement("availableMemory")]
-    public long AvailableMemory { get; set; }
+    public double AvailableMemory { get; set; }
 
     [BsonElement("cpuUsage")]
     public double CpuUsage { get; set; } 

@@ -2,11 +2,9 @@ namespace AnomalyDetectionService;
 
 public interface IMessageConsumer<T>
 {
-   void startConsuming();
-  
-   void stopConsuming();
-   
-   event EventHandler<T> onMessageReceived;
-   
-   
+    Task StartConsumingAsync();
+
+    Task StopConsumingAsync();
+
+    event Func<object, T, Task>? onMessageReceived;
 }

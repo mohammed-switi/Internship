@@ -34,15 +34,16 @@ public class MongoRepository : IMongoRepository
         }
     }
 
-    public async Task<IEnumerable<T>> GetRecentAsync<T>(int count)
+    public async Task<IEnumerable<T>> GetRecentAsync<T>(string serverIdentifier,int count)
     {
         try
         {
             var collection = GetCollection<T>();
+            var filter = Builders<T>.Filter.Eq("serverIdentifier", serverIdentifier);
             var sortDefinition = Builders<T>.Sort.Descending("timestamp");
 
             return await collection
-                .Find(FilterDefinition<T>.Empty)
+                .Find(filter)
                 .Sort(sortDefinition)
                 .Limit(count)
                 .ToListAsync();

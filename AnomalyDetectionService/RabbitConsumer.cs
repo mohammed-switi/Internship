@@ -21,7 +21,6 @@ public class RabbitMqConsumer<T>(
     private IChannel _channel= null!;
     private CancellationTokenSource? _cts;
 
-    // ✅ Matching the interface event name (lowercase)
     public event EventHandler<T>? onMessageReceived;
 
     public void startConsuming()

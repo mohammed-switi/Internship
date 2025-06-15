@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestaurantReservation", "RestaurantReservation\RestaurantReservation.csproj", "{EB5DA857-264D-4EAE-B681-B59997250471}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestaurantReservation.Db", "RestaurantReservation.Db\RestaurantReservation.Db.csproj", "{DBB0600D-443C-4710-913A-A46DF546CD2B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerMonitoringNotificationSystem", "ServerMonitoringNotificationSystem\ServerMonitoringNotificationSystem.csproj", "{4B1BB4F5-0E9A-4187-97E0-2E3352D7A67E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -10,13 +8,9 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{EB5DA857-264D-4EAE-B681-B59997250471}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EB5DA857-264D-4EAE-B681-B59997250471}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EB5DA857-264D-4EAE-B681-B59997250471}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EB5DA857-264D-4EAE-B681-B59997250471}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DBB0600D-443C-4710-913A-A46DF546CD2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DBB0600D-443C-4710-913A-A46DF546CD2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DBB0600D-443C-4710-913A-A46DF546CD2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DBB0600D-443C-4710-913A-A46DF546CD2B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B1BB4F5-0E9A-4187-97E0-2E3352D7A67E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B1BB4F5-0E9A-4187-97E0-2E3352D7A67E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B1BB4F5-0E9A-4187-97E0-2E3352D7A67E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B1BB4F5-0E9A-4187-97E0-2E3352D7A67E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

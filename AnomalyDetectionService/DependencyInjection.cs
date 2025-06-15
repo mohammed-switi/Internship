@@ -1,31 +1,51 @@
-namespace AnomalyDetectionService;
+// C#
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using AnomalyDetectionService.Config;
+using AnomalyDetectionService.Repositories;
+using RabbitMQ.Client;
+
+namespace AnomalyDetectionService;
 
 public static class DependencyInjection
 {
     public static IServiceCollection RegisterApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
+        // Configure MongoDbConfig
+        services.Configure<MongoDbConfig>(configuration.GetSection("MongoDb"));
+
         // MongoDB
         services.AddSingleton<IMongoClient>(sp =>
         {
-            var mongoConnectionString = configuration.GetConnectionString("MongoDb") ?? "mongodb://localhost:27017";
-            return new MongoClient(mongoConnectionString);
+            var mongoOptions = sp.GetRequiredService<IOptions<MongoDbConfig>>().Value;
+            return new MongoClient(mongoOptions.ConnectionString);
         });
-        services.AddSingleton<IMongoRepository, MongoRepository>();
+        services.AddSingleton<IMongoRepository>(sp =>
+        {
+            var mongoClient = sp.GetRequiredService<IMongoClient>();
+            var mongoOptions = sp.GetRequiredService<IOptions<MongoDbConfig>>().Value;
+            return new MongoRepository(mongoClient, mongoOptions.DatabaseName);
+        });
 
         // RabbitMQ
         services.AddSingleton<IMessageConsumer<ServerStatistics>>(sp =>
         {
-            var config = configuration.GetSection("RabbitMq").Get<RabbitMqConfig<>>();
-            return new RabbitMqConsumer<>(config);
+            var config = configuration.GetSection("RabbitMq").Get<RabbitMqConfig>();
+            var logger = sp.GetRequiredService<ILogger<RabbitMqConsumer<ServerStatistics>>>();
+            logger.LogInformation("something "  + config.ExchangeName);
+          
+            return new RabbitMqConsumer<ServerStatistics>(
+                config.HostName,
+                config.ExchangeName
+            );
         });
 
         // Anomaly Detector
         services.AddSingleton<IAnomalyDetector>(sp =>
-            new AnomalyDetector(
+            new AnomalyDetectorService(
                 memoryUsageAnomalyThresholdPercentage: 0.3,
                 cpuUsageAnomalyThresholdPercentage: 0.3,
                 memoryUsageThresholdPercentage: 0.85,
@@ -53,9 +73,7 @@ public static class DependencyInjection
         });
 
         // Health Checks
-        services.AddHealthChecks()
-            .AddMongoDb(configuration.GetConnectionString("MongoDb") ?? "mongodb://localhost:27017", name: "MongoDB");
-
+  
         return services;
     }
 }

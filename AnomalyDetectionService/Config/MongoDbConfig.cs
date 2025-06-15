@@ -1,0 +1,10 @@
+// File: AnomalyDetectionService/Config/MongoDbConfig.cs
+namespace AnomalyDetectionService.Config
+{
+    public class MongoDbConfig
+    {
+        public string ConnectionString { get; set; } = "mongodb://localhost:27017";
+        public string DatabaseName { get; set; } = "DefaultDatabase";
+        
+    }
+}

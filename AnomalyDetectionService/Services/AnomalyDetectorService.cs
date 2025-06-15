@@ -1,6 +1,6 @@
 namespace AnomalyDetectionService;
 
-public class AnomalyDetector(
+public class AnomalyDetectorService(
     double memoryUsageAnomalyThresholdPercentage,
     double cpuUsageAnomalyThresholdPercentage,
     double memoryUsageThresholdPercentage,

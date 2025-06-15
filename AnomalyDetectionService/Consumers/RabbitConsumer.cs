@@ -6,15 +6,12 @@ using RabbitMQ.Client.Events;
 namespace AnomalyDetectionService;
 
 public class RabbitMqConsumer<T>(
-    IConnectionFactory connectionFactory,
+    string hostname,
     string exchangeName,
-    string queueName,
     string routingKeyPattern = "ServerStatistics.*")
     : IMessageConsumer<T>
 {
-    private readonly IConnectionFactory _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
     private readonly string _exchangeName = exchangeName ?? throw new ArgumentNullException(nameof(exchangeName));
-    private readonly string _queueName = queueName ?? throw new ArgumentNullException(nameof(queueName));
     private readonly string _routingKeyPattern = routingKeyPattern;
 
     private IConnection _connection= null!;
@@ -23,9 +20,13 @@ public class RabbitMqConsumer<T>(
 
     public event EventHandler<T>? onMessageReceived;
 
-    public void startConsuming()
+    public async void startConsuming()
     {
         _cts = new CancellationTokenSource();
+        var factory = new ConnectionFactory() { HostName = hostname };
+        _connection = await factory.CreateConnectionAsync();
+        _channel = await _connection.CreateChannelAsync();
+        
         Task.Run(() => ConsumeAsync(_cts.Token));
     }
 
@@ -40,12 +41,11 @@ public class RabbitMqConsumer<T>(
     {
         try
         {
-            _connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
-            _channel = await _connection.CreateChannelAsync(cancellationToken: cancellationToken);
+          
 
             await _channel.ExchangeDeclareAsync(_exchangeName, ExchangeType.Topic, durable: true, cancellationToken: cancellationToken);
-            await _channel.QueueDeclareAsync(_queueName, durable: true, exclusive: false, autoDelete: false, cancellationToken: cancellationToken);
-            await _channel.QueueBindAsync(_queueName, _exchangeName, _routingKeyPattern, cancellationToken: cancellationToken);
+            await _channel.QueueDeclareAsync("server_stats_queue", durable: true, exclusive: false, autoDelete: false, cancellationToken: cancellationToken);
+            await _channel.QueueBindAsync("server_stats_queue", _exchangeName, _routingKeyPattern, cancellationToken: cancellationToken);
 
             var consumer = new AsyncEventingBasicConsumer(_channel);
             consumer.ReceivedAsync += async (model, ea) =>
@@ -81,7 +81,7 @@ public class RabbitMqConsumer<T>(
                 await Task.Yield();
             };
 
-            await _channel.BasicConsumeAsync(_queueName, autoAck: false, consumer: consumer, cancellationToken: cancellationToken);
+            await _channel.BasicConsumeAsync("server_stats_queue", autoAck: false, consumer: consumer, cancellationToken: cancellationToken);
 
             while (!cancellationToken.IsCancellationRequested)
             {

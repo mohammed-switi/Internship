@@ -111,9 +111,10 @@ public class StatisticsProcessingService : BackgroundService
                 ServerIdentifier = stats.ServerIdentifier,
                 MetricType = highMemUsage ? "Memory" : "CPU",
                 CurrentValue = highMemUsage ? stats.MemoryUsage : stats.CpuUsage,
-                Threshold = highMemUsage
-                    ? _detector.MemoryUsageThresholdPercentage
-                    : _detector.CpuUsageThresholdPercentage,
+                Threshold = 20.0,
+                // Threshold = highMemUsage
+                //     ? _detector.MemoryUsageThresholdPercentage
+                //     : _detector.CpuUsageThresholdPercentage,
                 Timestamp = stats.Timestamp
             };
 

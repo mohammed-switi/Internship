@@ -1,6 +1,6 @@
 using MongoDB.Driver;
 
-namespace AnomalyDetectionService;
+namespace AnomalyDetectionService.Repositories;
 
 public class MongoRepository : IMongoRepository
 {

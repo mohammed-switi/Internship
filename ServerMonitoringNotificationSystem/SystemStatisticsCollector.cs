@@ -18,13 +18,14 @@ public class SystemStatisticsCollector : ISystemStatisticsCollector
     private PerformanceCounter _availableMemoryCounter;
     private readonly bool _isWindows;
 
-    public SystemStatisticsCollector(ILogger<SystemStatisticsCollector> logger, PerformanceCounter cpuCounter,
-        PerformanceCounter availableMemoryCounter)
+    public SystemStatisticsCollector(ILogger<SystemStatisticsCollector> logger)
     {
         _logger = logger;
-        _cpuCounter = cpuCounter;
-        _availableMemoryCounter = availableMemoryCounter;
         _isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        
+       _logger.LogInformation("System Statistics Collector initialized. OS: "+
+                                    (_isWindows ? "Windows" : "Non-Windows"));
+       
 
         InitializePerformanceCounters();
     }
@@ -63,7 +64,7 @@ public class SystemStatisticsCollector : ISystemStatisticsCollector
             statistics.MemoryUsage = memoryInfo.UsedMemoryMB;
             statistics.AvailableMemory = memoryInfo.AvailableMemoryMB;
 
-            _logger.LogDebug("Collected statistics - CPU: {Cpu}%, Memory Used: {MemUsed}MB, Available: {MemAvail}MB",
+            _logger.LogInformation("Collected statistics - CPU: {Cpu}%, Memory Used: {MemUsed}MB, Available: {MemAvail}MB",
                 statistics.CpuUsage, statistics.MemoryUsage, statistics.AvailableMemory);
         }
         catch (Exception ex)
@@ -76,7 +77,7 @@ public class SystemStatisticsCollector : ISystemStatisticsCollector
 
     private async Task<double> GetCpuUsageAsync()
     {
-        if (_isWindows && _cpuCounter != null)
+        if (_isWindows)
             try
             {
                 // Wait a bit for accurate reading

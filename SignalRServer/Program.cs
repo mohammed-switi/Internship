@@ -6,9 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSignalR();
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(builder =>
+    options.AddDefaultPolicy(policyBuilder =>
     {
-        builder.WithOrigins("http://localhost:3000", "http://localhost:5173") // Add your client URLs
+        policyBuilder.WithOrigins("http://localhost:3000", "http://localhost:5173") // Add your client URLs
                .AllowAnyHeader()
                .AllowAnyMethod()
                .AllowCredentials();

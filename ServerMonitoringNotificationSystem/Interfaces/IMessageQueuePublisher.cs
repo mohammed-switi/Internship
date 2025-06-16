@@ -1,4 +1,4 @@
-namespace ServerMonitoringNotificationSystem;
+namespace ServerMonitoringNotificationSystem.Interfaces;
 
 public interface IMessageQueuePublisher
 {

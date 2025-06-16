@@ -1,4 +1,4 @@
-namespace ServerMonitoringNotificationSystem;
+namespace ServerMonitoringNotificationSystem.Config;
 
 public class MonitoringConfiguration
 {

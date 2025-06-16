@@ -10,6 +10,7 @@ using AnomalyDetectionService.Interfaces;
 using AnomalyDetectionService.Models;
 using AnomalyDetectionService.Repositories;
 using AnomalyDetectionService.Services;
+using ServerMonitoringNotificationSystem.Models;
 
 namespace AnomalyDetectionService;
 

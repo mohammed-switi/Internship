@@ -1,5 +1,6 @@
 using AnomalyDetectionService.Interfaces;
 using AnomalyDetectionService.Models;
+using ServerMonitoringNotificationSystem.Models;
 using static System.Text.Json.JsonSerializer;
 
 namespace AnomalyDetectionService.Services;

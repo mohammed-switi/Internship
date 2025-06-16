@@ -1,43 +1,31 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using ServerMonitoringNotificationSystem.Config;
+using ServerMonitoringNotificationSystem.Interfaces;
 
-namespace ServerMonitoringNotificationSystem;
+namespace ServerMonitoringNotificationSystem.Services;
 
-public class ServerStatisticsCollectionService : BackgroundService
+public class ServerStatisticsCollectionService(
+    ISystemStatisticsCollector statisticsCollector,
+    IMessageQueuePublisher messagePublisher,
+    MonitoringConfiguration config,
+    ILogger<ServerStatisticsCollectionService> logger)
+    : BackgroundService
 {
-    private readonly ISystemStatisticsCollector _statisticsCollector;
-    private readonly IMessageQueuePublisher _messagePublisher;
-    private readonly MonitoringConfiguration _config;
-    private readonly ILogger<ServerStatisticsCollectionService> _logger;
-
-    public ServerStatisticsCollectionService(
-        ISystemStatisticsCollector statisticsCollector,
-        IMessageQueuePublisher messagePublisher,
-        MonitoringConfiguration config,
-        ILogger<ServerStatisticsCollectionService> logger)
-    {
-        _statisticsCollector = statisticsCollector;
-        _messagePublisher = messagePublisher;
-        _config = config;
-        _logger = logger;
-    }
-
     public override async Task StartAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Starting Server Statistics Collection Service");
-        _logger.LogInformation("Server Identifier: {ServerIdentifier}", _config.ServerIdentifier);
-        _logger.LogInformation("Sampling Interval: {Interval} seconds", _config.SamplingIntervalSeconds);
+        logger.LogInformation("Starting Server Statistics Collection Service");
+        logger.LogInformation("Server Identifier: {ServerIdentifier}", config.ServerIdentifier);
+        logger.LogInformation("Sampling Interval: {Interval} seconds", config.SamplingIntervalSeconds);
         
-        await _messagePublisher.ConnectAsync();
+        await messagePublisher.ConnectAsync();
         await base.StartAsync(cancellationToken);
     }
 
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Stopping Server Statistics Collection Service");
-        await _messagePublisher.DisconnectAsync();
+        logger.LogInformation("Stopping Server Statistics Collection Service");
+        await messagePublisher.DisconnectAsync();
         await base.StopAsync(cancellationToken);
     }
 
@@ -47,24 +35,24 @@ public class ServerStatisticsCollectionService : BackgroundService
         {
             try
             {
-                // Collect statistics
-                var statistics = await _statisticsCollector.CollectStatisticsAsync(_config.ServerIdentifier);
+                // collect statistics
+                var statistics = await statisticsCollector.CollectStatisticsAsync(config.ServerIdentifier);
                 
-                // Create topic name
-                var topic = $"{_config.TopicPrefix}.{_config.ServerIdentifier}";
+                // create topic name
+                var topic = $"{config.TopicPrefix}.{config.ServerIdentifier}";
                 
-                // Publish to message queue
-                await _messagePublisher.PublishAsync(topic, statistics);
+                // publish to message queue
+                await messagePublisher.PublishAsync(topic, statistics);
                 
-                _logger.LogInformation("Published statistics for server: {ServerIdentifier}", _config.ServerIdentifier);
+                logger.LogInformation("Published statistics for server: {ServerIdentifier}", config.ServerIdentifier);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in statistics collection cycle");
+                logger.LogError(ex, "Error in statistics collection cycle");
             }
 
             // Wait for the next sampling interval
-            await Task.Delay(TimeSpan.FromSeconds(_config.SamplingIntervalSeconds), stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(config.SamplingIntervalSeconds), stoppingToken);
         }
     }
 }

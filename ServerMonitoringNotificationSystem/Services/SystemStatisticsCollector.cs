@@ -3,49 +3,42 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
+using ServerMonitoringNotificationSystem.Interfaces;
+using ServerMonitoringNotificationSystem.Models;
 
-namespace ServerMonitoringNotificationSystem;
-
-public interface ISystemStatisticsCollector
-{
-    Task<ServerStatistics> CollectStatisticsAsync(string serverIdentifier);
-}
+namespace ServerMonitoringNotificationSystem.Services;
 
 public class SystemStatisticsCollector : ISystemStatisticsCollector
 {
     private readonly ILogger<SystemStatisticsCollector> _logger;
-    private PerformanceCounter _cpuCounter;
-    private PerformanceCounter _availableMemoryCounter;
-    private readonly bool _isWindows;
+    private PerformanceCounter _cpuCounter = null!;
+    private PerformanceCounter _availableMemoryCounter = null!;
 
     public SystemStatisticsCollector(ILogger<SystemStatisticsCollector> logger)
     {
         _logger = logger;
-        _isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        
-       _logger.LogInformation("System Statistics Collector initialized. OS: "+
-                                    (_isWindows ? "Windows" : "Non-Windows"));
-       
+        _logger.LogInformation("System Statistics Collector initialized. OS: " +
+                               (RuntimeInformation.OSDescription ?? "Unknown"));
 
-        InitializePerformanceCounters();
+        InitializePerformanceCountersWindowsOSOnly();
     }
 
-    private void InitializePerformanceCounters()
+    private bool IsWindowsOs()
     {
-        try
-        {
-            if (_isWindows)
-            {
-                _cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total", true);
-                _availableMemoryCounter = new PerformanceCounter("Memory", "Available MBytes");
+        return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+    }
 
-                _cpuCounter.NextValue();
-            }
-        }
-        catch (Exception ex)
+    private void InitializePerformanceCountersWindowsOSOnly()
+    {
+        if (IsWindowsOs())
         {
-            _logger.LogWarning(ex, "Failed to initialize performance counters. Using alternative methods.");
+            _logger.LogInformation("Performance counters are only available on Windows. Using cross-platform methods.");
+            return;
         }
+        // Warning is misleading, the code is not reaching this point on non-Windows OS.
+        _cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total", true);
+        _availableMemoryCounter = new PerformanceCounter("Memory", "Available MBytes");
+        _cpuCounter.NextValue();
     }
 
     public async Task<ServerStatistics> CollectStatisticsAsync(string serverIdentifier)
@@ -64,7 +57,8 @@ public class SystemStatisticsCollector : ISystemStatisticsCollector
             statistics.MemoryUsage = memoryInfo.UsedMemoryMB;
             statistics.AvailableMemory = memoryInfo.AvailableMemoryMB;
 
-            _logger.LogInformation("Collected statistics - CPU: {Cpu}%, Memory Used: {MemUsed}MB, Available: {MemAvail}MB",
+            _logger.LogInformation(
+                "Collected statistics - CPU: {Cpu}%, Memory Used: {MemUsed}MB, Available: {MemAvail}MB",
                 statistics.CpuUsage, statistics.MemoryUsage, statistics.AvailableMemory);
         }
         catch (Exception ex)
@@ -75,22 +69,29 @@ public class SystemStatisticsCollector : ISystemStatisticsCollector
         return statistics;
     }
 
-    private async Task<double> GetCpuUsageAsync()
-    {
-        if (_isWindows)
-            try
-            {
-                // Wait a bit for accurate reading
-                await Task.Delay(100);
-                return Math.Round(_cpuCounter.NextValue(), 2);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to get CPU usage from performance counter");
-            }
+   
+private async Task<double> GetCpuUsageAsync()
+{
+    return IsWindowsOs()
+        ? await GetCpuUsageWindowsAsync()
+        : GetCpuUsageCrossPlatform();
+}
 
-        return GetCpuUsageCrossPlatform();
+private async Task<double> GetCpuUsageWindowsAsync()
+{
+    try
+    {
+        await Task.Delay(100);
+        // Warning is misleading, the code is not reaching this point on non-Windows OS.
+        return Math.Round(_cpuCounter.NextValue(), 2);
     }
+    catch (Exception ex)
+    {
+        _logger.LogWarning(ex, "Failed to get CPU usage from performance counter.");
+        return GetCpuUsageCrossPlatform(); // fallback if performance counter fails
+    }
+}
+
 
     private double GetCpuUsageCrossPlatform()
     {
@@ -116,34 +117,52 @@ public class SystemStatisticsCollector : ISystemStatisticsCollector
         }
     }
 
-    private (double UsedMemoryMB, double AvailableMemoryMB, double UsagePercent) GetMemoryInfo()
+ 
+private (double UsedMemoryMB, double AvailableMemoryMB, double UsagePercent) GetMemoryInfo()
+{
+    return IsWindowsOs() ? GetWindowsMemoryInfo() : GetCrossPlatformMemoryInfo();
+}
+
+private (double UsedMemoryMB, double AvailableMemoryMB, double UsagePercent) GetWindowsMemoryInfo()
+{
+    try
     {
-        try
-        {
-            if (_isWindows)
-            {
-                var availableMb = _availableMemoryCounter.NextValue();
-                var totalMemoryMb = GetTotalPhysicalMemoryMB();
-                var usedMemoryMb = totalMemoryMb - availableMb;
-                var usagePercent = usedMemoryMb / totalMemoryMb * 100;
+        // Warning is misleading, the code is not reaching this point on non-Windows OS.
+        var availableMb = _availableMemoryCounter.NextValue();
+        var totalMemoryMb = GetTotalPhysicalMemoryMbWindowsOsOnly();
+        var usedMemoryMb = totalMemoryMb - availableMb;
+        var usagePercent = usedMemoryMb / totalMemoryMb * 100;
 
-                return (Math.Round(usedMemoryMb, 2), Math.Round(availableMb, 2), Math.Round(usagePercent, 2));
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to get memory info from performance counter");
-        }
-
-        var gcMemoryMb = GC.GetTotalMemory(false) / (1024.0 * 1024.0);
-        var workingSetMb = Environment.WorkingSet / (1024.0 * 1024.0);
-
-        return (Math.Round(workingSetMb, 2), Math.Round(gcMemoryMb, 2), 0.0);
+        return (
+            UsedMemoryMB: Math.Round(usedMemoryMb, 2),
+            AvailableMemoryMB: Math.Round(availableMb, 2),
+            UsagePercent: Math.Round(usagePercent, 2)
+        );
     }
-
-    private double GetTotalPhysicalMemoryMB()
+    catch (Exception ex)
     {
-        using var pc = new PerformanceCounter("Memory", "Committed Bytes");
-        return pc.NextValue() / (1024.0 * 1024.0);
+        _logger.LogWarning(ex, "Failed to get memory info from performance counter");
+        return GetCrossPlatformMemoryInfo();
     }
+}
+
+private (double UsedMemoryMB, double AvailableMemoryMB, double UsagePercent) GetCrossPlatformMemoryInfo()
+{
+    double usedMb = Environment.WorkingSet / (1024.0 * 1024.0);
+    double availableMb = GC.GetTotalMemory(forceFullCollection: false) / (1024.0 * 1024.0);
+
+    return (
+        UsedMemoryMB: Math.Round(usedMb, 2),
+        AvailableMemoryMB: Math.Round(availableMb, 2),
+        UsagePercent: 0.0
+    );
+}
+
+private double GetTotalPhysicalMemoryMbWindowsOsOnly()
+{ 
+    // Warning is misleading, the code is not reaching this point on non-Windows OS.
+    using var pc = new PerformanceCounter("Memory", "Committed Bytes");
+    return pc.NextValue() / (1024.0 * 1024.0);
+}
+
 }

@@ -2,8 +2,9 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
+using ServerMonitoringNotificationSystem.Interfaces;
 
-namespace ServerMonitoringNotificationSystem;
+namespace ServerMonitoringNotificationSystem.Publisher;
 
 public class RabbitMqPublisher(string connectionString, ILogger<RabbitMqPublisher> logger) : IMessageQueuePublisher
 {

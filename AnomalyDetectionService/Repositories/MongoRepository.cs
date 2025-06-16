@@ -8,7 +8,7 @@ public class MongoRepository : IMongoRepository
 
     public MongoRepository(IMongoClient mongoClient, string databaseName)
     {
-        if (mongoClient == null) throw new ArgumentNullException(nameof(mongoClient));
+        ArgumentNullException.ThrowIfNull(mongoClient);
         if (string.IsNullOrWhiteSpace(databaseName)) throw new ArgumentException("Database name must be provided.");
 
         _database = mongoClient.GetDatabase(databaseName);
@@ -29,7 +29,7 @@ public class MongoRepository : IMongoRepository
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"[MongoRepository] Insert failed: {ex.Message}");
+            await Console.Error.WriteLineAsync($"[MongoRepository] Insert failed: {ex.Message}");
             throw;
         }
     }
@@ -50,7 +50,7 @@ public class MongoRepository : IMongoRepository
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"[MongoRepository] GetRecentAsync failed: {ex.Message}");
+            await Console.Error.WriteLineAsync($"[MongoRepository] GetRecentAsync failed: {ex.Message}");
             throw;
         }
     }
@@ -65,7 +65,7 @@ public class MongoRepository : IMongoRepository
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"[MongoRepository] GetByServerAsync failed: {ex.Message}");
+            await Console.Error.WriteLineAsync($"[MongoRepository] GetByServerAsync failed: {ex.Message}");
             throw;
         }
     }

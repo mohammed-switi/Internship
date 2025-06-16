@@ -1,4 +1,4 @@
-namespace AnomalyDetectionService;
+namespace AnomalyDetectionService.Interfaces;
 
 public interface IAnomalyDetector
 

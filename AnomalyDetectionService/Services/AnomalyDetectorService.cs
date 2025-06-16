@@ -1,4 +1,6 @@
-namespace AnomalyDetectionService;
+using AnomalyDetectionService.Interfaces;
+
+namespace AnomalyDetectionService.Services;
 
 public class AnomalyDetectorService(
     double memoryUsageAnomalyThresholdPercentage,
@@ -9,8 +11,8 @@ public class AnomalyDetectorService(
 {
  
 
-    public double MemoryUsageThresholdPercentage { get; }
-    public double CpuUsageThresholdPercentage { get; }
+    public double MemoryUsageThresholdPercentage { get; } = memoryUsageThresholdPercentage;
+    public double CpuUsageThresholdPercentage { get; } = cpuUsageThresholdPercentage;
 
     public bool DetectMemoryAnomaly(double currentMemoryUsage, double previousMemoryUsage)
     {
@@ -25,12 +27,12 @@ public class AnomalyDetectorService(
     public bool IsHighUsageMemory(double currentMemoryUsage, double currentAvailableMemory)
     {
         double usageRatio = currentMemoryUsage / (currentMemoryUsage + currentAvailableMemory);
-        return usageRatio > memoryUsageThresholdPercentage;
+        return usageRatio > MemoryUsageThresholdPercentage;
     }
 
     public bool IsHighUsageCpu(double currentCpuUsage)
     {
-        return currentCpuUsage > cpuUsageThresholdPercentage;
+        return currentCpuUsage > CpuUsageThresholdPercentage;
     }
 
 

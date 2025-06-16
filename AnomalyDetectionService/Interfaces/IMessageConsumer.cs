@@ -1,4 +1,4 @@
-namespace AnomalyDetectionService;
+namespace AnomalyDetectionService.Interfaces;
 
 public interface IMessageConsumer<T>
 {
@@ -6,5 +6,5 @@ public interface IMessageConsumer<T>
 
     Task StopConsumingAsync();
 
-    event Func<object, T, Task>? onMessageReceived;
+    event Func<object, T, Task>? OnMessageReceived;
 }

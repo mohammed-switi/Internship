@@ -13,7 +13,7 @@ public class AnomalyAlert
     public string ServerIdentifier { get; set; } = string.Empty;
 
     [BsonElement("metricType")]
-    public string MetricType { get; set; } = string.Empty; // e.g., "CPU", "Memory"
+    public string MetricType { get; set; } = string.Empty;
 
     [BsonElement("currentValue")]
     public double CurrentValue { get; set; }

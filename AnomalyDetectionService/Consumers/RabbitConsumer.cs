@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using AnomalyDetectionService.Interfaces;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -11,10 +12,12 @@ public class RabbitMqConsumer<T>(
     string routingKeyPattern = "ServerStatistics.*")
     : IMessageConsumer<T>
 {
+    
+    
     private IConnection _connection = null!;
     private IChannel _channel = null!;
     private CancellationTokenSource? _cts;
-public event Func<object, T, Task>? onMessageReceived;
+public event Func<object, T, Task>? OnMessageReceived;
 
 private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -75,7 +78,11 @@ private static readonly JsonSerializerOptions JsonOptions = new()
     private async Task StartConsumingMessagesAsync(CancellationToken cancellationToken)
     {
         var consumer = new AsyncEventingBasicConsumer(_channel);
-        consumer.ReceivedAsync += async (model, ea) => await HandleMessageAsync(ea, cancellationToken);
+        
+        consumer.ReceivedAsync += async (model, ea) => 
+            await HandleMessageAsync(ea, cancellationToken);
+        
+        
         await _channel.BasicConsumeAsync("server_stats_queue", false, consumer, cancellationToken);
     }
 
@@ -98,8 +105,8 @@ private static readonly JsonSerializerOptions JsonOptions = new()
             Console.WriteLine(
                 $"[RabbitMqConsumer] Deserialized successfully: {JsonSerializer.Serialize(data, JsonOptions)}");
 
-            if (onMessageReceived != null)
-                await onMessageReceived.Invoke(this, data);
+            if (OnMessageReceived != null)
+                await OnMessageReceived.Invoke(this, data);
 
             await _channel.BasicAckAsync(ea.DeliveryTag, false, cancellationToken);
             Console.WriteLine("[RabbitMqConsumer] Message acknowledged successfully");

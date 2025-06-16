@@ -9,7 +9,7 @@ using AnomalyDetectionService.Consumers;
 using AnomalyDetectionService.Interfaces;
 using AnomalyDetectionService.Models;
 using AnomalyDetectionService.Repositories;
-using RabbitMQ.Client;
+using AnomalyDetectionService.Services;
 
 namespace AnomalyDetectionService;
 
@@ -37,6 +37,7 @@ public static class DependencyInjection
         services.AddSingleton<IMessageConsumer<ServerStatistics>>(sp =>
         {
             var config = configuration.GetSection("RabbitMq").Get<RabbitMqConfig>();
+            if(config==null) throw new ArgumentNullException(paramName:nameof(configuration),message:"RabbitMq configuration is missing.");
             var logger = sp.GetRequiredService<ILogger<RabbitMqConsumer<ServerStatistics>>>();
             logger.LogInformation("something "  + config.ExchangeName);
           

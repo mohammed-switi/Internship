@@ -1,8 +1,8 @@
-using System.Text.Json;
 using AnomalyDetectionService.Interfaces;
 using AnomalyDetectionService.Models;
+using static System.Text.Json.JsonSerializer;
 
-namespace AnomalyDetectionService;
+namespace AnomalyDetectionService.Services;
 
 using System;
 using System.Linq;
@@ -22,23 +22,26 @@ public class StatisticsProcessingService(
     public override Task StartAsync(CancellationToken cancellationToken)
     {
         logger.LogInformation("StatisticsProcessingService is starting.");
-        consumer.onMessageReceived += async (sender, stats) =>
-        {
-            try
-            {
-                logger.LogInformation("Processing statistics message...");
-                logger.LogInformation("Received stats: {Stats}", JsonSerializer.Serialize(stats));
-                await HandleStatisticsAsync(stats);
-                logger.LogInformation("Successfully processed statistics message");
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error processing statistics message");
-                throw;
-            }
-        };
+
+        consumer.OnMessageReceived += ConsumerOnMessageReceived;
 
         return consumer.StartConsumingAsync();
+    }
+
+    private async Task ConsumerOnMessageReceived(object sender, ServerStatistics stats)
+    {
+        try
+        {
+            logger.LogInformation("Processing statistics message...");
+            logger.LogInformation("Received stats: {Stats}", Serialize(stats));
+            await HandleStatisticsAsync(stats);
+            logger.LogInformation("Successfully processed statistics message");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error processing statistics message");
+            throw;
+        }
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -58,7 +61,7 @@ public class StatisticsProcessingService(
     {
         logger.LogInformation($"Received stats from {stats.ServerIdentifier} at {stats.Timestamp}");
 
-        await repository.InsertAsync<ServerStatistics>(stats);
+        await repository.InsertAsync(stats);
 
         var history = await GetOrderedRecentHistoryAsync(stats.ServerIdentifier);
         if (history.Count < 2)
@@ -79,39 +82,40 @@ public class StatisticsProcessingService(
         return history.OrderByDescending(s => s.Timestamp).ToList();
     }
 
-   
-private async Task DetectAndSendAnomalyAlertAsync(ServerStatistics current, ServerStatistics previous)
-{
-    var memAnomaly = detector.DetectMemoryAnomaly(current.MemoryUsage, previous.MemoryUsage);
-    var cpuAnomaly = detector.DetectCpuAnomaly(current.CpuUsage, previous.CpuUsage);
 
-    if (memAnomaly)
+    private async Task DetectAndSendAnomalyAlertAsync(ServerStatistics current, ServerStatistics previous)
     {
-        var memoryAlert = CreateAnomalyAlert(current, previous, "Memory");
-        await alertService.SendAnomalyAlertAsync(memoryAlert);
-        logger.LogWarning($"Anomaly detected: Memory on {current.ServerIdentifier}");
+        var memAnomaly = detector.DetectMemoryAnomaly(current.MemoryUsage, previous.MemoryUsage);
+        var cpuAnomaly = detector.DetectCpuAnomaly(current.CpuUsage, previous.CpuUsage);
+
+        if (memAnomaly)
+        {
+            var memoryAlert = CreateAnomalyAlert(current, previous, "Memory");
+            await alertService.SendAnomalyAlertAsync(memoryAlert);
+            logger.LogWarning($"Anomaly detected: Memory on {current.ServerIdentifier}");
+        }
+
+        if (cpuAnomaly)
+        {
+            var cpuAlert = CreateAnomalyAlert(current, previous, "CPU");
+            await alertService.SendAnomalyAlertAsync(cpuAlert);
+            logger.LogWarning($"Anomaly detected: CPU on {current.ServerIdentifier}");
+        }
     }
 
-    if (cpuAnomaly)
+
+    private static AnomalyAlert CreateAnomalyAlert(ServerStatistics current, ServerStatistics previous, string metricType)
     {
-        var cpuAlert = CreateAnomalyAlert(current, previous, "CPU");
-        await alertService.SendAnomalyAlertAsync(cpuAlert);
-        logger.LogWarning($"Anomaly detected: CPU on {current.ServerIdentifier}");
+        return new AnomalyAlert
+        {
+            ServerIdentifier = current.ServerIdentifier,
+            MetricType = metricType,
+            CurrentValue = metricType == "Memory" ? current.MemoryUsage : current.CpuUsage,
+            PreviousValue = metricType == "Memory" ? previous.MemoryUsage : previous.CpuUsage,
+            Timestamp = current.Timestamp
+        };
     }
-}
 
-
-private AnomalyAlert CreateAnomalyAlert(ServerStatistics current, ServerStatistics previous, string metricType)
-{
-    return new AnomalyAlert
-    {
-        ServerIdentifier = current.ServerIdentifier,
-        MetricType = metricType,
-        CurrentValue = metricType == "Memory" ? current.MemoryUsage : current.CpuUsage,
-        PreviousValue = metricType == "Memory" ? previous.MemoryUsage : previous.CpuUsage,
-        Timestamp = current.Timestamp
-    };
-}
     private async Task DetectAndSendHighUsageAlertAsync(ServerStatistics stats)
     {
         var highMemUsage = detector.IsHighUsageMemory(stats.MemoryUsage, stats.AvailableMemory);

@@ -11,48 +11,34 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-public class StatisticsProcessingService : BackgroundService
+public class StatisticsProcessingService(
+    IMongoRepository repository,
+    IMessageConsumer<ServerStatistics> consumer,
+    IAnomalyDetector detector,
+    IAlertService alertService,
+    ILogger<StatisticsProcessingService> logger)
+    : BackgroundService
 {
-    private readonly IMongoRepository _repository;
-    private readonly IMessageConsumer<ServerStatistics> _consumer;
-    private readonly IAnomalyDetector _detector;
-    private readonly IAlertService _alertService;
-    private readonly ILogger<StatisticsProcessingService> _logger;
-
-    public StatisticsProcessingService(
-        IMongoRepository repository,
-        IMessageConsumer<ServerStatistics> consumer,
-        IAnomalyDetector detector,
-        IAlertService alertService,
-        ILogger<StatisticsProcessingService> logger)
-    {
-        _repository = repository;
-        _consumer = consumer;
-        _detector = detector;
-        _alertService = alertService;
-        _logger = logger;
-    }
-
     public override Task StartAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("StatisticsProcessingService is starting.");
-        _consumer.onMessageReceived += async (sender, stats) =>
+        logger.LogInformation("StatisticsProcessingService is starting.");
+        consumer.onMessageReceived += async (sender, stats) =>
         {
             try
             {
-                _logger.LogInformation("Processing statistics message...");
-                _logger.LogInformation("Received stats: {Stats}", JsonSerializer.Serialize(stats));
+                logger.LogInformation("Processing statistics message...");
+                logger.LogInformation("Received stats: {Stats}", JsonSerializer.Serialize(stats));
                 await HandleStatisticsAsync(stats);
-                _logger.LogInformation("Successfully processed statistics message");
+                logger.LogInformation("Successfully processed statistics message");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing statistics message");
+                logger.LogError(ex, "Error processing statistics message");
                 throw;
             }
         };
 
-        return _consumer.StartConsumingAsync();
+        return consumer.StartConsumingAsync();
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -62,65 +48,89 @@ public class StatisticsProcessingService : BackgroundService
 
     public override Task StopAsync(CancellationToken cancellationToken)
     {
-        _consumer.StopConsumingAsync();
-        _logger.LogInformation("StatisticsProcessingService is stopping.");
+        consumer.StopConsumingAsync();
+        logger.LogInformation("StatisticsProcessingService is stopping.");
         return base.StopAsync(cancellationToken);
     }
 
+
     private async Task HandleStatisticsAsync(ServerStatistics stats)
     {
-        _logger.LogInformation($"Received stats from {stats.ServerIdentifier} at {stats.Timestamp}");
+        logger.LogInformation($"Received stats from {stats.ServerIdentifier} at {stats.Timestamp}");
 
-        await _repository.InsertAsync<ServerStatistics>(stats);
+        await repository.InsertAsync<ServerStatistics>(stats);
 
-        var history = await _repository.GetRecentAsync<ServerStatistics>(stats.ServerIdentifier, 10);
-        var ordered = history.OrderByDescending(s => s.Timestamp).ToList();
-
-        if (ordered.Count < 2)
+        var history = await GetOrderedRecentHistoryAsync(stats.ServerIdentifier);
+        if (history.Count < 2)
         {
-            _logger.LogInformation("Not enough historical data for anomaly detection.");
+            logger.LogInformation("Not enough historical data for anomaly detection.");
             return;
         }
 
-        var previous = ordered[1];
+        var previous = history[1];
 
-        var memAnomaly = _detector.DetectMemoryAnomaly(stats.MemoryUsage, previous.MemoryUsage);
-        var cpuAnomaly = _detector.DetectCpuAnomaly(stats.CpuUsage, previous.CpuUsage);
+        await DetectAndSendAnomalyAlertAsync(stats, previous);
+        await DetectAndSendHighUsageAlertAsync(stats);
+    }
 
-        if (memAnomaly || cpuAnomaly)
+    private async Task<List<ServerStatistics>> GetOrderedRecentHistoryAsync(string serverIdentifier)
+    {
+        var history = await repository.GetRecentAsync<ServerStatistics>(serverIdentifier, 10);
+        return history.OrderByDescending(s => s.Timestamp).ToList();
+    }
+
+   
+private async Task DetectAndSendAnomalyAlertAsync(ServerStatistics current, ServerStatistics previous)
+{
+    var memAnomaly = detector.DetectMemoryAnomaly(current.MemoryUsage, previous.MemoryUsage);
+    var cpuAnomaly = detector.DetectCpuAnomaly(current.CpuUsage, previous.CpuUsage);
+
+    if (memAnomaly)
+    {
+        var memoryAlert = CreateAnomalyAlert(current, previous, "Memory");
+        await alertService.SendAnomalyAlertAsync(memoryAlert);
+        logger.LogWarning($"Anomaly detected: Memory on {current.ServerIdentifier}");
+    }
+
+    if (cpuAnomaly)
+    {
+        var cpuAlert = CreateAnomalyAlert(current, previous, "CPU");
+        await alertService.SendAnomalyAlertAsync(cpuAlert);
+        logger.LogWarning($"Anomaly detected: CPU on {current.ServerIdentifier}");
+    }
+}
+
+
+private AnomalyAlert CreateAnomalyAlert(ServerStatistics current, ServerStatistics previous, string metricType)
+{
+    return new AnomalyAlert
+    {
+        ServerIdentifier = current.ServerIdentifier,
+        MetricType = metricType,
+        CurrentValue = metricType == "Memory" ? current.MemoryUsage : current.CpuUsage,
+        PreviousValue = metricType == "Memory" ? previous.MemoryUsage : previous.CpuUsage,
+        Timestamp = current.Timestamp
+    };
+}
+    private async Task DetectAndSendHighUsageAlertAsync(ServerStatistics stats)
+    {
+        var highMemUsage = detector.IsHighUsageMemory(stats.MemoryUsage, stats.AvailableMemory);
+        var highCpuUsage = detector.IsHighUsageCpu(stats.CpuUsage);
+
+        if (!highMemUsage && !highCpuUsage) return;
+
+        var highUsageAlert = new HighUsageAlert
         {
-            var anomalyAlert = new AnomalyAlert
-            {
-                ServerIdentifier = stats.ServerIdentifier,
-                MetricType = memAnomaly ? "Memory" : "CPU",
-                CurrentValue = memAnomaly ? stats.MemoryUsage : stats.CpuUsage,
-                PreviousValue = memAnomaly ? previous.MemoryUsage : previous.CpuUsage,
-                Timestamp = stats.Timestamp
-            };
+            ServerIdentifier = stats.ServerIdentifier,
+            MetricType = highMemUsage ? "Memory" : "CPU",
+            CurrentValue = highMemUsage ? stats.MemoryUsage : stats.CpuUsage,
+            Threshold = highMemUsage
+                ? detector.MemoryUsageThresholdPercentage
+                : detector.CpuUsageThresholdPercentage,
+            Timestamp = stats.Timestamp
+        };
 
-            await _alertService.SendAnomalyAlertAsync(anomalyAlert);
-            _logger.LogWarning($"Anomaly detected: {anomalyAlert.MetricType} on {stats.ServerIdentifier}");
-        }
-
-        // Step 4: High Usage Detection
-        var highMemUsage = _detector.IsHighUsageMemory(stats.MemoryUsage, stats.AvailableMemory);
-        var highCpuUsage = _detector.IsHighUsageCpu(stats.CpuUsage);
-
-        if (highMemUsage || highCpuUsage)
-        {
-            var highUsageAlert = new HighUsageAlert
-            {
-                ServerIdentifier = stats.ServerIdentifier,
-                MetricType = highMemUsage ? "Memory" : "CPU",
-                CurrentValue = highMemUsage ? stats.MemoryUsage : stats.CpuUsage,
-                Threshold = highMemUsage
-                    ? _detector.MemoryUsageThresholdPercentage
-                    : _detector.CpuUsageThresholdPercentage,
-                Timestamp = stats.Timestamp
-            };
-
-            await _alertService.SendHighUsageAlertAsync(highUsageAlert);
-            _logger.LogWarning($"High usage alert: {highUsageAlert.MetricType} on {stats.ServerIdentifier}");
-        }
+        await alertService.SendHighUsageAlertAsync(highUsageAlert);
+        logger.LogWarning($"High usage alert: {highUsageAlert.MetricType} on {stats.ServerIdentifier}");
     }
 }

@@ -1,10 +1,9 @@
 using System.Text;
 using System.Text.Json;
-using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace AnomalyDetectionService;
+namespace AnomalyDetectionService.Consumers;
 
 public class RabbitMqConsumer<T>(
     string hostname,
@@ -15,14 +14,14 @@ public class RabbitMqConsumer<T>(
     private IConnection _connection = null!;
     private IChannel _channel = null!;
     private CancellationTokenSource? _cts;
+public event Func<object, T, Task>? onMessageReceived;
 
-    private static readonly JsonSerializerOptions JsonOptions = new()
+private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true
     };
-
-    public event Func<object, T, Task>? onMessageReceived;
+    
 
     public async Task StartConsumingAsync()
     {
@@ -36,11 +35,9 @@ public class RabbitMqConsumer<T>(
 
     public async Task StopConsumingAsync()
     {
-        _cts?.Cancel();
-        if (_channel != null)
-            await _channel.CloseAsync();
-        if (_connection != null)
-            await _connection.CloseAsync();
+        if (_cts != null) await _cts.CancelAsync();
+        await _channel.CloseAsync();
+        await _connection.CloseAsync();
     }
 
 
@@ -51,7 +48,6 @@ public class RabbitMqConsumer<T>(
             await SetupMessagingInfrastructureAsync(cancellationToken);
             await StartConsumingMessagesAsync(cancellationToken);
 
-            // Keep the consumer alive
             while (!cancellationToken.IsCancellationRequested)
                 await Task.Delay(1000, cancellationToken);
         }

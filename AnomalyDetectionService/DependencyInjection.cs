@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using AnomalyDetectionService.Config;
+using AnomalyDetectionService.Consumers;
 using AnomalyDetectionService.Interfaces;
 using AnomalyDetectionService.Models;
 using AnomalyDetectionService.Repositories;

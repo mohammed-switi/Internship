@@ -30,7 +30,7 @@ public class SystemStatisticsCollector : ISystemStatisticsCollector
 
     private void InitializePerformanceCountersWindowsOSOnly()
     {
-        if (IsWindowsOs())
+        if (!IsWindowsOs())
         {
             _logger.LogInformation("Performance counters are only available on Windows. Using cross-platform methods.");
             return;

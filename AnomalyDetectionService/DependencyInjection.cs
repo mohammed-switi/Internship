@@ -53,7 +53,7 @@ public static class DependencyInjection
         services.AddSingleton<IAnomalyDetector>(sp =>
 
             {
-                var config = configuration.GetSection("AnomalyDetector").Get<AnomalyDetectorConfig>();
+                var config = configuration.GetSection("AnomalyThresholdSettings").Get<AnomalyThresholdConfig>();
                 ArgumentNullException.ThrowIfNull(config);
                 return new AnomalyDetectorService(
                     config.MemoryUsageThresholdPercentage,

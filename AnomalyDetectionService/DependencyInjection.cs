@@ -37,13 +37,15 @@ public static class DependencyInjection
         services.AddSingleton<IMessageConsumer<ServerStatistics>>(sp =>
         {
             var config = configuration.GetSection("RabbitMq").Get<RabbitMqConfig>();
-            if(config==null) throw new ArgumentNullException(paramName:nameof(configuration),message:"RabbitMq configuration is missing.");
+            ArgumentNullException.ThrowIfNull(config);
+            
             var logger = sp.GetRequiredService<ILogger<RabbitMqConsumer<ServerStatistics>>>();
-            logger.LogInformation("something "  + config.ExchangeName);
           
             return new RabbitMqConsumer<ServerStatistics>(
                 config.HostName,
-                config.ExchangeName
+                config.ExchangeName,
+                logger,
+                routingKeyPattern: config.RoutingKey
             );
         });
 
@@ -60,8 +62,9 @@ public static class DependencyInjection
         // SignalR
         services.AddSingleton<IAlertService>(sp =>
         {
-            var hubUrl = configuration["SignalR:HubUrl"] ?? "https://localhost:5001/alertHub";
-            var alertService = new SignalRAlertService(hubUrl);
+            var config = configuration.GetSection("SignalR").Get<SignalRConfig>();
+            ArgumentNullException.ThrowIfNull(config);
+            var alertService = new SignalRAlertService(config.HubUrl);
             alertService.StartAsync().GetAwaiter().GetResult();
             return alertService;
         });
@@ -76,7 +79,6 @@ public static class DependencyInjection
             logging.AddConsole();
         });
 
-        // Health Checks
   
         return services;
     }

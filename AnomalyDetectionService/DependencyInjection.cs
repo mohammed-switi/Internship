@@ -1,4 +1,3 @@
-// C#
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -7,7 +6,6 @@ using MongoDB.Driver;
 using AnomalyDetectionService.Config;
 using AnomalyDetectionService.Consumers;
 using AnomalyDetectionService.Interfaces;
-using AnomalyDetectionService.Models;
 using AnomalyDetectionService.Repositories;
 using AnomalyDetectionService.Services;
 using ServerMonitoringNotificationSystem.Models;
@@ -16,7 +14,8 @@ namespace AnomalyDetectionService;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection RegisterApplicationServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection RegisterApplicationServices(this IServiceCollection services,
+        IConfiguration configuration)
     {
         // Configure MongoDbConfig
         services.Configure<MongoDbConfig>(configuration.GetSection("MongoDb"));
@@ -39,26 +38,30 @@ public static class DependencyInjection
         {
             var config = configuration.GetSection("RabbitMq").Get<RabbitMqConfig>();
             ArgumentNullException.ThrowIfNull(config);
-            
+
             var logger = sp.GetRequiredService<ILogger<RabbitMqConsumer<ServerStatistics>>>();
-          
+
             return new RabbitMqConsumer<ServerStatistics>(
                 config.HostName,
                 config.ExchangeName,
                 logger,
-                routingKeyPattern: config.RoutingKey
+                config.RoutingKey
             );
         });
 
         // Anomaly Detector
         services.AddSingleton<IAnomalyDetector>(sp =>
-            new AnomalyDetectorService(
-                memoryUsageAnomalyThresholdPercentage: 0.3,
-                cpuUsageAnomalyThresholdPercentage: 0.3,
-                memoryUsageThresholdPercentage: 0.85,
-                cpuUsageThresholdPercentage: 0.85
-            )
-        );
+
+            {
+                var config = configuration.GetSection("AnomalyDetector").Get<AnomalyDetectorConfig>();
+                ArgumentNullException.ThrowIfNull(config);
+                return new AnomalyDetectorService(
+                    config.MemoryUsageThresholdPercentage,
+                    config.CpuUsageThresholdPercentage,
+                    config.MemoryUsageAnomalyThresholdPercentage,
+                    config.CpuUsageAnomalyThresholdPercentage
+                );
+            });
 
         // SignalR
         services.AddSingleton<IAlertService>(sp =>
@@ -80,7 +83,7 @@ public static class DependencyInjection
             logging.AddConsole();
         });
 
-  
+
         return services;
     }
 }

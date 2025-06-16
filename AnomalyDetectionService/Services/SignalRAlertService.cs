@@ -14,7 +14,7 @@ public class SignalRAlertService : IAlertService
 
     public SignalRAlertService(string hubUrl)
     {
-       var url = hubUrl ?? throw new ArgumentNullException(nameof(hubUrl));
+        var url = hubUrl ?? throw new ArgumentNullException(nameof(hubUrl));
 
         _hubConnection = BuildHubConnection(url);
 
@@ -94,6 +94,7 @@ public class SignalRAlertService : IAlertService
     {
         return _hubConnection.State == HubConnectionState.Connected;
     }
+
     private static int RandomJitterDelay()
     {
         var rnd = new Random();

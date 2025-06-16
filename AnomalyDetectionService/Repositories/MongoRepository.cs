@@ -34,7 +34,7 @@ public class MongoRepository : IMongoRepository
         }
     }
 
-    public async Task<IEnumerable<T>> GetRecentAsync<T>(string serverIdentifier,int count)
+    public async Task<IEnumerable<T>> GetRecentAsync<T>(string serverIdentifier, int count)
     {
         try
         {

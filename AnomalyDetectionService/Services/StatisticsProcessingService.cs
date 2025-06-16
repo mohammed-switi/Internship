@@ -105,7 +105,8 @@ public class StatisticsProcessingService(
     }
 
 
-    private static AnomalyAlert CreateAnomalyAlert(ServerStatistics current, ServerStatistics previous, string metricType)
+    private static AnomalyAlert CreateAnomalyAlert(ServerStatistics current, ServerStatistics previous,
+        string metricType)
     {
         return new AnomalyAlert
         {

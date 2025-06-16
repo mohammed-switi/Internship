@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
-
+using AnomalyDetectionService.Models; // Adjust the namespace as needed
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services
@@ -54,23 +54,4 @@ public class AlertHub : Hub
         Console.WriteLine($"[Hub] Client disconnected: {Context.ConnectionId}");
         await base.OnDisconnectedAsync(exception);
     }
-}
-
-// 3. Alert model classes (if you don't have them)
-public class AnomalyAlert
-{
-    public string Id { get; set; } = "";
-    public string Message { get; set; } = "";
-    public DateTime Timestamp { get; set; }
-    public string Severity { get; set; } = "";
-    public string Source { get; set; } = "";
-}
-
-public class HighUsageAlert
-{
-    public string Id { get; set; } = "";
-    public string Resource { get; set; } = "";
-    public double UsagePercentage { get; set; }
-    public DateTime Timestamp { get; set; }
-    public string Message { get; set; } = "";
 }

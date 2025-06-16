@@ -9,7 +9,9 @@ public class AnomalyDetectorService(
 {
  
 
-    // Anomaly alert: current > previous * (1 + threshold)
+    public double MemoryUsageThresholdPercentage { get; }
+    public double CpuUsageThresholdPercentage { get; }
+
     public bool DetectMemoryAnomaly(double currentMemoryUsage, double previousMemoryUsage)
     {
         return currentMemoryUsage > previousMemoryUsage * (1 + memoryUsageAnomalyThresholdPercentage);

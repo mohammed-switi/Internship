@@ -1,6 +1,9 @@
 using System.Text.Json;
+using AnomalyDetectionService.Interfaces;
+using AnomalyDetectionService.Models;
 
 namespace AnomalyDetectionService;
+
 using System;
 using System.Linq;
 using System.Threading;
@@ -30,33 +33,30 @@ public class StatisticsProcessingService : BackgroundService
         _logger = logger;
     }
 
-public override Task StartAsync(CancellationToken cancellationToken)
-{
-    _logger.LogInformation("StatisticsProcessingService is starting.");
-    // Use async event handler
-    _consumer.onMessageReceived += async (sender, stats) =>
+    public override Task StartAsync(CancellationToken cancellationToken)
     {
-        try
+        _logger.LogInformation("StatisticsProcessingService is starting.");
+        _consumer.onMessageReceived += async (sender, stats) =>
         {
-            _logger.LogInformation("Processing statistics message...");
-            _logger.LogInformation("Received stats: {Stats}", JsonSerializer.Serialize(stats));
-            await HandleStatisticsAsync(stats);
-            _logger.LogInformation("Successfully processed statistics message");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error processing statistics message");
-            throw; 
-        }
-    };
-    
-    // Start consuming
-    return _consumer.StartConsumingAsync();
-}
+            try
+            {
+                _logger.LogInformation("Processing statistics message...");
+                _logger.LogInformation("Received stats: {Stats}", JsonSerializer.Serialize(stats));
+                await HandleStatisticsAsync(stats);
+                _logger.LogInformation("Successfully processed statistics message");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing statistics message");
+                throw;
+            }
+        };
+
+        return _consumer.StartConsumingAsync();
+    }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        
         return Task.CompletedTask;
     }
 
@@ -71,10 +71,8 @@ public override Task StartAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation($"Received stats from {stats.ServerIdentifier} at {stats.Timestamp}");
 
-        // Step 1: Save to MongoDB
         await _repository.InsertAsync<ServerStatistics>(stats);
 
-        // Step 2: Retrieve recent statistics for this server
         var history = await _repository.GetRecentAsync<ServerStatistics>(stats.ServerIdentifier, 10);
         var ordered = history.OrderByDescending(s => s.Timestamp).ToList();
 
@@ -86,9 +84,8 @@ public override Task StartAsync(CancellationToken cancellationToken)
 
         var previous = ordered[1];
 
-        // Step 3: Run Anomaly Detection
-        bool memAnomaly = _detector.DetectMemoryAnomaly(stats.MemoryUsage, previous.MemoryUsage);
-        bool cpuAnomaly = _detector.DetectCpuAnomaly(stats.CpuUsage, previous.CpuUsage);
+        var memAnomaly = _detector.DetectMemoryAnomaly(stats.MemoryUsage, previous.MemoryUsage);
+        var cpuAnomaly = _detector.DetectCpuAnomaly(stats.CpuUsage, previous.CpuUsage);
 
         if (memAnomaly || cpuAnomaly)
         {
@@ -106,8 +103,8 @@ public override Task StartAsync(CancellationToken cancellationToken)
         }
 
         // Step 4: High Usage Detection
-        bool highMemUsage = _detector.IsHighUsageMemory(stats.MemoryUsage, stats.AvailableMemory);
-        bool highCpuUsage = _detector.IsHighUsageCpu(stats.CpuUsage);
+        var highMemUsage = _detector.IsHighUsageMemory(stats.MemoryUsage, stats.AvailableMemory);
+        var highCpuUsage = _detector.IsHighUsageCpu(stats.CpuUsage);
 
         if (highMemUsage || highCpuUsage)
         {
@@ -116,10 +113,9 @@ public override Task StartAsync(CancellationToken cancellationToken)
                 ServerIdentifier = stats.ServerIdentifier,
                 MetricType = highMemUsage ? "Memory" : "CPU",
                 CurrentValue = highMemUsage ? stats.MemoryUsage : stats.CpuUsage,
-                Threshold = 20.0,
-                // Threshold = highMemUsage
-                //     ? _detector.MemoryUsageThresholdPercentage
-                //     : _detector.CpuUsageThresholdPercentage,
+                Threshold = highMemUsage
+                    ? _detector.MemoryUsageThresholdPercentage
+                    : _detector.CpuUsageThresholdPercentage,
                 Timestamp = stats.Timestamp
             };
 

@@ -1,5 +1,7 @@
 
-namespace AnomalyDetectionService;
+using AnomalyDetectionService.Models;
+
+namespace AnomalyDetectionService.Interfaces;
 
 public interface IAlertService
 {

@@ -2,7 +2,7 @@ namespace ServerMonitoringNotificationSystem;
 
 public interface IMessageQueuePublisher
 {
-    Task PublishAsync(string topic, object message);
+    Task PublishAsync(string routingKey, object message);
     Task ConnectAsync();
     Task DisconnectAsync();
 }

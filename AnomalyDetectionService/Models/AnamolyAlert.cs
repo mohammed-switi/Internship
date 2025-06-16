@@ -1,7 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace AnomalyDetectionService;
+namespace AnomalyDetectionService.Models;
 
 public class AnomalyAlert
 {

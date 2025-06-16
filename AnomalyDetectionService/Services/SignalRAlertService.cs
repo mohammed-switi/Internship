@@ -1,3 +1,6 @@
+using AnomalyDetectionService.Interfaces;
+using AnomalyDetectionService.Models;
+
 namespace AnomalyDetectionService;
 
 using System;

@@ -18,7 +18,7 @@ public class RabbitMqPublisher(string connectionString, ILogger<RabbitMqPublishe
         logger.LogInformation("Connected to RabbitMQ");
     }
 
-    public async Task PublishAsync(string topic, object message)
+    public async Task PublishAsync(string routingKey, object message)
     {
         await _channel.ExchangeDeclareAsync("ServerExchange",
             ExchangeType.Topic,
@@ -29,12 +29,12 @@ public class RabbitMqPublisher(string connectionString, ILogger<RabbitMqPublishe
 
         await _channel.BasicPublishAsync(
             "ServerExchange",
-            topic,
+            routingKey,
             false,
             body
         );
 
-        logger.LogInformation("Published message to topic: {Topic}", topic);
+        logger.LogInformation("Published message to topic: {Topic}", routingKey);
     }
 
     public async Task DisconnectAsync()

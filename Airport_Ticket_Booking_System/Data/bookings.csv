@@ -1,0 +1,4 @@
+BookingId,PassengerName,FlightNumber,ClassType,Price
+B1001,FL001,FL001,Economy,500
+B1002,Mohamemd,AA123,Economy,300
+B1003,Mohammed,AA123,Economy,300

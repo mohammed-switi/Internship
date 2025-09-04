@@ -1,0 +1,11 @@
+# Ignore build output directories
+*/bin/
+*/obj/
+*.idea
+
+# Ignore user-specific files
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
